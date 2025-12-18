@@ -87,7 +87,7 @@ const productsMock: Product[] = [
     price: 12,
     desc: "Hambúrguer artesanal 160g, cheddar, bacon crocante e molho especial.",
     img: "https://swiftbr.vteximg.com.br/arquivos/ids/201377-768-768/622291-batata-airfryer-extra-croc-mccain_3.jpg?v=638657204471230000",
-    category: "Adicionais",
+    category: "Batata",
   },
 ];
 
