@@ -10,6 +10,7 @@ import {
   Search,
   ShoppingCart,
   HamburgerIcon,
+  Star,
 } from "lucide-react";
 
 type Product = {
@@ -162,26 +163,29 @@ export function Main() {
         <div className={styles.containerSec}>
           <section className={styles.hero}>
             <div className={styles.heroOverlay} />
-            <div className={styles.heroContent}>
-              <div className={styles.openBadge}>
-                <span style={{ color: "rgb(2,255,61)", fontSize: 10 }}>
-                  ABERTO AGORA
-                </span>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", paddingTop: 30 }}>
+              <div className={styles.heroContent}>
+                <div className={styles.heroBadges}>
+                  <span className={styles.openBadge}>ABERTO AGORA</span>
+                  <span className={styles.ratingBadge}>
+                    4.8 <Star size={14} />
+                  </span>
+                </div>
+                <h1 className={styles.heroTitle}>O Verdadeiro</h1>
+                <h2 className={styles.heroAccent}>Sabor Artesanal</h2>
+                <p className={styles.heroDesc}>
+                  Ingredientes selecionados, carnes nobres e aquele molho especial
+                  que você só encontra aqui.
+                </p>
               </div>
-
-              <h1 className={styles.heroTitle}>
-                O Verdadeiro <br />
-                <span className={styles.heroAccent}>Sabor Artesanal</span>
-              </h1>
             </div>
           </section>
 
           <div className={styles.categoryRow}>
             <button
               onClick={() => setCategory(null)}
-              className={`${styles.categoryPill} ${
-                category === null ? styles.categoryActive : ""
-              }`}
+              className={`${styles.categoryPill} ${category === null ? styles.categoryActive : ""
+                }`}
             >
               Todos
             </button>
@@ -193,9 +197,8 @@ export function Main() {
                 <button
                   key={item.name}
                   onClick={() => setCategory(item.name)}
-                  className={`${styles.categoryPill} ${
-                    category === item.name ? styles.categoryActive : ""
-                  }`}
+                  className={`${styles.categoryPill} ${category === item.name ? styles.categoryActive : ""
+                    }`}
                 >
                   <Icon size={18} />
                   <span>{item.name}</span>
