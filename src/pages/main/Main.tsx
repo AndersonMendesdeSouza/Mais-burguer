@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import Colors from "../../themes/Colors";
 import styles from "./Main.module.css";
 import { FoodCard } from "../../components/food/FoodCard";
-import { DrinkCard } from "../../components/drink/DrinkCard";
 
 import {
   PlusCircle,
