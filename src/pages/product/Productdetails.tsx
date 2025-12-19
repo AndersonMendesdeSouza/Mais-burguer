@@ -13,14 +13,6 @@ type Addon = {
   price: number;
 };
 
-type Complement = {
-  id: string;
-  name: string;
-  desc: string;
-  price: number;
-  img?: string;
-};
-
 const BRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
