@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { Main } from './pages/main/Main'
 import { FoodDetails } from './pages/FoodDetails'
 import ProductDetails from './pages/product/Productdetails'
-import Cart from './pages/cart/cart'
+import Cart from './pages/cart/Cart'
 
 function App() {
   return (
