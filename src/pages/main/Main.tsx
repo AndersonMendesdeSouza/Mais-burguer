@@ -232,9 +232,7 @@ export function Main() {
 
                   <div className={cat === "Bebidas" ? styles.grid3 : styles.grid4}>
                     {items.map((item) => (
-                      <button onClick={()=> navigation("/productDetails")}>
-                        <FoodCard  key={item.id} {...item} />
-                      </button>
+                        <FoodCard  key={item.id} {...item} onDetails={()=> navigation("/productDetails")}/>
                     ))}
                   </div>
                 </section>
