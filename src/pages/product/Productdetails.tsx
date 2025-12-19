@@ -1,7 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import styles from "./Productdetails.module.css";
 import { Share2, Minus, Plus, Check } from "lucide-react";
 import { FoodCard } from "../../components/food/FoodCard";
+import type { ProductResponseDto } from "../../dtos/Product-Response.Dto";
+import { sendOrderToWhatsApp } from "../../utils/sendOrderToWhatsApp";
 
 type Addon = {
   id: string;
@@ -22,21 +25,18 @@ const BRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function ProductDetails() {
+  const location = useLocation();
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState("");
+  const [products, setProducts] = useState<ProductResponseDto | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>(
     {}
   );
 
-  const product = {
-    title: "X-Monster Bacon",
-    price: 32.9,
-    badge: "Mais vendido",
-    desc:
-      "Pão brioche selado na manteiga, dois smash burgers de 100g, muito cheddar inglês, fatias crocantes de bacon e maionese defumada da casa.",
-    image:
-      "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1400&q=80",
-  };
+  useEffect(() => {
+    const item = (location.state as { item?: ProductResponseDto } | null)?.item;
+    if (item) setProducts(item);
+  }, [location.state]);
 
   const addons: Addon[] = [
     { id: "bacon", name: "Bacon Extra", desc: "Fatia extra crocante", price: 4 },
@@ -89,18 +89,19 @@ export default function ProductDetails() {
     [addons, selectedAddons]
   );
 
-  const total = (product.price + addonsTotal) * qty;
+  const total = ((products?.price ?? 0) + addonsTotal) * qty;
 
   const toggleAddon = (id: string) => {
     setSelectedAddons((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  if (!products) return null;
+
   return (
     <div className={styles.page}>
-      {/* TOPO: imagem + conteúdo */}
       <div className={styles.top}>
         <div className={styles.media}>
-          <img className={styles.mediaImg} src={product.image} alt={product.title} />
+          <img className={styles.mediaImg} src={products.img} alt={products.name} />
         </div>
 
         <div className={styles.content}>
@@ -109,14 +110,14 @@ export default function ProductDetails() {
           </button>
 
           <div className={styles.header}>
-            <h1 className={styles.title}>{product.title}</h1>
+            <h1 className={styles.title}>{products.name}</h1>
 
             <div className={styles.priceRow}>
-              <span className={styles.price}>{BRL(product.price)}</span>
-              <span className={styles.badge}>{product.badge}</span>
+              <span className={styles.price}>{BRL(products.price)}</span>
+              <span className={styles.badge}>{products.badge}</span>
             </div>
 
-            <p className={styles.desc}>{product.desc}</p>
+            <p className={styles.desc}>{products.desc}</p>
           </div>
 
           <div className={styles.section}>
@@ -135,7 +136,7 @@ export default function ProductDetails() {
                     className={`${styles.addonRow} ${active ? styles.addonActive : ""}`}
                     onClick={() => toggleAddon(a.id)}
                   >
-                    <span className={styles.toggle} aria-hidden="true">
+                    <span className={styles.toggle}>
                       <span className={`${styles.toggleKnob} ${active ? styles.toggleOn : ""}`}>
                         {active ? <Check size={14} /> : null}
                       </span>
@@ -164,13 +165,12 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
-      {/* BOTTOM BAR: FULL WIDTH */}
+
       <div className={styles.bottomBar}>
         <div className={styles.stepper}>
           <button
             className={styles.stepBtn}
             onClick={() => setQty((v) => Math.max(1, v - 1))}
-            aria-label="Diminuir quantidade"
           >
             <Minus size={16} />
           </button>
@@ -180,7 +180,6 @@ export default function ProductDetails() {
           <button
             className={styles.stepBtn}
             onClick={() => setQty((v) => v + 1)}
-            aria-label="Aumentar quantidade"
           >
             <Plus size={16} />
           </button>
@@ -190,8 +189,26 @@ export default function ProductDetails() {
           <span>Adicionar</span>
           <span className={styles.addBtnPrice}>{BRL(total)}</span>
         </button>
+
+        {/* ✅ AJUSTE AQUI */}
+        <button
+          className={styles.finilyBtn}
+          type="button"
+          onClick={() =>
+            sendOrderToWhatsApp([
+              {
+                name: products.name,
+                quantity: qty,
+                price: products.price + addonsTotal,
+              },
+            ])
+          }
+        >
+          <span>Pedir</span>
+          <span className={styles.addBtnPrice}>{BRL(total)}</span>
+        </button>
       </div>
-      {/* COMPLEMENTOS: FULL WIDTH embaixo da imagem */}
+
       <div className={styles.complementsSection}>
         <h2 className={styles.sectionTitle}>Complementos</h2>
 
@@ -203,8 +220,6 @@ export default function ProductDetails() {
           ))}
         </div>
       </div>
-
-
     </div>
   );
 }

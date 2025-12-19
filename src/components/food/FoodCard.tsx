@@ -1,3 +1,4 @@
+// src/components/food/FoodCard.tsx
 import styles from "./FoodCard.module.css";
 
 type FoodCardProps = {
@@ -17,14 +18,7 @@ function formatMoney(value?: number) {
   });
 }
 
-export function FoodCard({
-  name,
-  desc,
-  price,
-  img,
-  badge,
-  onDetails,
-}: FoodCardProps) {
+export function FoodCard({ name, desc, price, img, badge, onDetails }: FoodCardProps) {
   const priceMin = price !== undefined ? price + 7 : undefined;
 
   return (
@@ -41,20 +35,15 @@ export function FoodCard({
 
         <div className={styles.bottom}>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <span className={styles.minPrice}>
-              {formatMoney(priceMin)}
-            </span>
-            <span className={styles.price}>
-              {formatMoney(price)}
-            </span>
+            <span className={styles.minPrice}>{formatMoney(priceMin)}</span>
+            <span className={styles.price}>{formatMoney(price)}</span>
           </div>
-          
+
           <button type="button" className={styles.button} onClick={onDetails}>
             Ver detalhes
           </button>
         </div>
-      </div> 
-
+      </div>
     </article>
   );
 }

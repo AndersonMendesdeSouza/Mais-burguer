@@ -15,17 +15,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import whatsapp from "../../assets/whatsapp.png";
 import { MainSkeleton } from "../../components/skeleton/main/MainSkeleton";
-type Product = {
-  id: number;
-  name: string;
-  desc?: string;
-  price: number;
-  img: string;
-  badge?: string;
-  category: string;
-};
+import type { ProductResponseDto } from "../../dtos/Product-Response.Dto";
 
-const productsMock: Product[] = [
+const productsMock: ProductResponseDto[] = [
   {
     id: 1,
     name: "Monster Bacon",
@@ -118,7 +110,7 @@ export function Main() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 2000);
+    const t = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(t);
   }, []);
 
@@ -146,12 +138,13 @@ export function Main() {
     return filteredProducts.reduce((acc, product) => {
       (acc[product.category] ||= []).push(product);
       return acc;
-    }, {} as Record<string, Product[]>);
+    }, {} as Record<string, ProductResponseDto[]>);
   }, [filteredProducts]);
-
-  const goDetails = (id: number) => {
-    navigation(`/productDetails?id=${id}`);
+  
+  const goDetails = (item: ProductResponseDto) => {
+    navigation(`/productDetails?id=${item.id}`, { state: { item } });
   };
+
 
   return (
     <div
@@ -183,26 +176,26 @@ export function Main() {
             </div>
           </div>
 
-          
-            <div className={styles.searchInputWrap}>
-              <Search size={18} />
-              <input
-                className={styles.searchInput}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar itens..."
-                autoFocus
-              />
-              <button
-                type="button"
-                className={styles.searchClear}
-                onClick={() => {
-                  setSearch("");
-                }}
-              >
-                <X size={18} />
-              </button>
-            </div>
+
+          <div className={styles.searchInputWrap}>
+            <Search size={18} />
+            <input
+              className={styles.searchInput}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar itens..."
+              autoFocus
+            />
+            <button
+              type="button"
+              className={styles.searchClear}
+              onClick={() => {
+                setSearch("");
+              }}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </header>
 
         <div
@@ -307,7 +300,7 @@ export function Main() {
                         price={item.price}
                         img={item.img}
                         badge={item.badge}
-                        onDetails={() => goDetails(item.id)}
+                        onDetails={() => goDetails(item)}
                       />
                     ))}
                   </div>

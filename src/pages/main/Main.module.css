@@ -306,7 +306,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
 }
 
 .sectionLeft {
@@ -336,6 +335,7 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   padding-bottom: 10px;
+  padding-top:10px ;
 }
 
 .grid4 > *,
@@ -428,7 +428,10 @@
     align-items: center;
     padding: 10px 10px;
   }
-
+.whatsappFloat img {
+  width: 70px;
+  height: 70px;
+}
   .headerRight {
     width: auto;
     justify-content: flex-end;
