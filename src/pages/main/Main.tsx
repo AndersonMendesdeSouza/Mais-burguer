@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import Colors from "../../themes/Colors";
 import styles from "./Main.module.css";
 import { FoodCard } from "../../components/food/FoodCard";
@@ -108,10 +108,15 @@ export function Main() {
   const navigation = useNavigate();
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const searchRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    searchRef.current?.blur();
   }, []);
 
   const categories = useMemo(() => {
@@ -145,7 +150,6 @@ export function Main() {
     navigation(`/productDetails?id=${item.id}`, { state: { item } });
   };
 
-
   return (
     <div
       className={styles.screen}
@@ -176,21 +180,25 @@ export function Main() {
             </div>
           </div>
 
-
           <div className={styles.searchInputWrap}>
             <Search size={18} />
             <input
+              ref={searchRef}
               className={styles.searchInput}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar itens..."
-              autoFocus
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              inputMode="search"
             />
             <button
               type="button"
               className={styles.searchClear}
               onClick={() => {
                 setSearch("");
+                searchRef.current?.blur();
               }}
             >
               <X size={18} />
@@ -247,8 +255,9 @@ export function Main() {
               <button
                 type="button"
                 onClick={() => setCategory(null)}
-                className={`${styles.categoryPill} ${category === null ? styles.categoryActive : ""
-                  }`}
+                className={`${styles.categoryPill} ${
+                  category === null ? styles.categoryActive : ""
+                }`}
               >
                 Todos
               </button>
@@ -260,8 +269,9 @@ export function Main() {
                     key={item.name}
                     type="button"
                     onClick={() => setCategory(item.name)}
-                    className={`${styles.categoryPill} ${category === item.name ? styles.categoryActive : ""
-                      }`}
+                    className={`${styles.categoryPill} ${
+                      category === item.name ? styles.categoryActive : ""
+                    }`}
                   >
                     <Icon size={18} />
                     <span>{item.name}</span>
