@@ -48,11 +48,13 @@ export function FoodCard({
               {formatMoney(price)}
             </span>
           </div>
+          
           <button type="button" className={styles.button} onClick={onDetails}>
             Ver detalhes
           </button>
         </div>
-      </div>
+      </div> 
+
     </article>
   );
 }
