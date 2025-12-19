@@ -1,4 +1,3 @@
-// src/pages/Main/Main.tsx
 import React, { useMemo, useState, useEffect } from "react";
 import Colors from "../../themes/Colors";
 import styles from "./Main.module.css";
@@ -16,7 +15,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import whatsapp from "../../assets/whatsapp.png";
 import { MainSkeleton } from "../../components/skeleton/main/mainSkeleton";
-
 type Product = {
   id: number;
   name: string;
@@ -117,7 +115,6 @@ export function Main() {
   const [category, setCategory] = useState<string | null>(null);
   const navigation = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -201,7 +198,6 @@ export function Main() {
                 className={styles.searchClear}
                 onClick={() => {
                   setSearch("");
-                  setSearchOpen(false);
                 }}
               >
                 <X size={18} />
