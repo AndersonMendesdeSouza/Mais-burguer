@@ -96,7 +96,7 @@ export default function Cart() {
 
           <h1 className={styles.title}>Seu Pedido</h1>
 
-          <div className={styles.linkBtn}  onClick={() => navigation("/")}>
+          <div className={styles.linkBtn} onClick={() => navigation("/")}>
             Continuar comprando
           </div>
         </header>
@@ -188,8 +188,23 @@ export default function Cart() {
 
         <div className={styles.bottomSpacer} />
       </div>
+
       <div className={styles.bottomBar}>
-        <button className={styles.checkoutBtn} type="button">
+        <button
+          className={styles.checkoutBtn}
+          type="button"
+          onClick={() =>
+            navigation("/checkout", {
+              state: {
+                items,
+                orderObs,
+                deliveryFee,
+                subtotal,
+                total,
+              },
+            })
+          }
+        >
           <span className={styles.checkoutText}>Finalizar Pedido</span>
           <span className={styles.checkoutRight}>
             <span className={styles.checkoutTotal}>{brl(total)}</span>
