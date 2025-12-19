@@ -1,25 +1,9 @@
-// src/pages/Main/MainSkeleton.tsx
 import styles from "./mainSkeleton.module.css";
 
 export function MainSkeleton() {
   return (
     <div className={styles.screen}>
       <div className={styles.page}>
-        {/* <header className={styles.header}>
-          <div className={styles.headerContent}>
-            <div className={styles.brand}>
-              <div className={`${styles.skel} ${styles.brandDot}`} />
-              <div className={`${styles.skel} ${styles.brandName}`} />
-            </div>
-
-            <div className={styles.headerRight}>
-              <div className={`${styles.skel} ${styles.cartBtn}`} />
-            </div>
-          </div>
-
-          <div className={`${styles.skel} ${styles.searchBtn}`} />
-        </header> */}
-
         <div className={styles.containerSec}>
           <section className={styles.hero}>
             <div className={styles.heroOverlay} />
