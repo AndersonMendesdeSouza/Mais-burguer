@@ -19,17 +19,18 @@
 }
 
 .containerSec {
-  padding: 40px;
+  padding: 20px;
 }
 
 .header {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 70px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 10px;
+  padding: 40px;
 }
 
 .brandName{
@@ -217,6 +218,43 @@
   margin: 0;
 }
 
+.searchInputWrap {
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 50% ;
+  max-width: 300px;
+  margin-top: -55px;
+}
+
+.searchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.searchInput::placeholder {
+  color: rgba(240, 248, 255, 0.5);
+}
+
+.searchClear {
+  border: none;
+  background: transparent;
+  color: rgba(240, 248, 255, 0.75);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .heroAccent {
   color: var(--highlight);
   font-size: 54px;
@@ -311,7 +349,16 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
+    .header {
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 15px;
+  }
   .containerSec {
     padding: 20px;
   }
@@ -321,6 +368,19 @@
     padding-top: 44px;
     max-width: 520px;
   }
+.searchInputWrap {
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 1000% ;
+  max-width: 300px;
+  margin-top: 0px;
+}
 
   .openBagContainer {
     top: 18px;
@@ -354,6 +414,10 @@
     align-items: stretch;
     justify-content: flex-start;
     gap: 10px;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px;
   }
 
   .headerContent {

@@ -1,0 +1,337 @@
+/* src/pages/Main/MainSkeleton.module.css */
+.screen {
+  background: var(--bg-primary);
+  display: flex;
+  color: var(--text-primary);
+}
+
+.page {
+  width: 100%;
+  border-radius: 24px;
+  background: radial-gradient(
+      900px 260px at 50% 0%,
+      rgba(255, 255, 255, 0.06),
+      rgba(0, 0, 0, 0)
+    ),
+    var(--bg-secondary);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.containerSec {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 70px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 15px;
+  border-radius: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerRight {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.brandDot {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.brandName {
+  width: 140px;
+  height: 18px;
+  border-radius: 8px;
+}
+
+.searchBtn {
+  width: 260px;
+  height: 40px;
+  border-radius: 999px;
+}
+
+.cartBtn {
+  width: 110px;
+  height: 40px;
+  border-radius: 999px;
+}
+
+.hero {
+  height: 300px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      900px 340px at 20% 10%,
+      rgba(0, 0, 0, 0.38),
+      rgba(0, 0, 0, 0) 60%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.82) 0%,
+      rgba(0, 0, 0, 0.36) 55%,
+      rgba(0, 0, 0, 0.12) 100%
+    );
+}
+
+.heroCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 30px;
+  height: 100%;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  padding: 56px;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heroBadges {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.badge {
+  width: 110px;
+  height: 24px;
+  border-radius: 9px;
+}
+
+.badgeRound {
+  width: 62px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.heroTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.heroTitle {
+  width: 210px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.heroAccent {
+  width: 320px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.heroDesc {
+  margin-top: 14px;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.line {
+  width: 100%;
+  height: 14px;
+  border-radius: 10px;
+}
+
+.lineShort {
+  width: 60%;
+  height: 14px;
+  border-radius: 10px;
+}
+
+.categoryRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 40px;
+  overflow-x: auto;
+}
+
+.categoryPill {
+  width: 130px;
+  height: 34px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.section {
+  margin-top: 22px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sectionLeft {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sectionIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.sectionTitle {
+  width: 140px;
+  height: 18px;
+  border-radius: 8px;
+}
+
+.sectionCount {
+  width: 80px;
+  height: 16px;
+  border-radius: 8px;
+}
+
+.grid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 10px;
+}
+
+.card {
+  flex: 0 0 auto;
+  min-width: 240px;
+  height: 160px;
+  border-radius: 18px;
+  scroll-snap-align: start;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.skel {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (max-width: 768px) {
+  .containerSec {
+    padding: 20px;
+  }
+
+  .heroContent {
+    padding: 26px;
+    padding-top: 44px;
+    max-width: 520px;
+  }
+
+  .heroTitle {
+    width: 150px;
+    height: 32px;
+  }
+
+  .heroAccent {
+    width: 260px;
+    height: 32px;
+  }
+
+  .card {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 500px) {
+  .header {
+    height: auto;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .headerContent {
+    max-width: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+  }
+
+  .headerRight {
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .searchBtn {
+    width: calc(100% - 20px);
+    margin: 0 10px 10px 10px;
+    height: 48px;
+  }
+}

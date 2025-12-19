@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+// src/pages/Main/Main.tsx
+import React, { useMemo, useState, useEffect } from "react";
 import Colors from "../../themes/Colors";
 import styles from "./Main.module.css";
 import { FoodCard } from "../../components/food/FoodCard";
@@ -10,9 +11,11 @@ import {
   ShoppingCart,
   HamburgerIcon,
   Star,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import whatsapp from "../../assets/whatsapp.png";
+import { MainSkeleton } from "../../components/skeleton/main/mainSkeleton";
 
 type Product = {
   id: number;
@@ -113,6 +116,14 @@ const handleWatsappClick = () => {
 export function Main() {
   const [category, setCategory] = useState<string | null>(null);
   const navigation = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(t);
+  }, []);
 
   const categories = useMemo(() => {
     return Array.from(new Set(productsMock.map((p) => p.category))).map(
@@ -123,12 +134,23 @@ export function Main() {
     );
   }, []);
 
+  const filteredProducts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return productsMock;
+    return productsMock.filter((p) => {
+      const name = p.name.toLowerCase();
+      const desc = (p.desc || "").toLowerCase();
+      const cat = p.category.toLowerCase();
+      return name.includes(q) || desc.includes(q) || cat.includes(q);
+    });
+  }, [search]);
+
   const groupedProducts = useMemo(() => {
-    return productsMock.reduce((acc, product) => {
+    return filteredProducts.reduce((acc, product) => {
       (acc[product.category] ||= []).push(product);
       return acc;
     }, {} as Record<string, Product[]>);
-  }, []);
+  }, [filteredProducts]);
 
   const goDetails = (id: number) => {
     navigation(`/productDetails?id=${id}`);
@@ -160,107 +182,144 @@ export function Main() {
             </div>
 
             <div className={styles.headerRight}>
-              <button className={styles.cartBtn} type="button">
-                <ShoppingCart size={18} />
-                R$ 42,00
-              </button>
+              <ShoppingCart size={22} color={Colors.Highlight.primary} />
             </div>
           </div>
 
-          <button className={styles.searchBtn} type="button">
-            <Search size={18} />
-            <span>Buscar</span>
-          </button>
+          
+            <div className={styles.searchInputWrap}>
+              <Search size={18} />
+              <input
+                className={styles.searchInput}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar itens..."
+                autoFocus
+              />
+              <button
+                type="button"
+                className={styles.searchClear}
+                onClick={() => {
+                  setSearch("");
+                  setSearchOpen(false);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
         </header>
 
-        <div className={styles.whatsappFloat} onClick={() => handleWatsappClick()}>
+        <div
+          className={styles.whatsappFloat}
+          onClick={() => handleWatsappClick()}
+        >
           <img src={whatsapp} alt="WhatsApp" />
         </div>
 
-        <div className={styles.containerSec}>
-          <section className={styles.hero}>
-            <div className={styles.heroOverlay} />
-            <div className={styles.heroCenter}>
-              <div className={styles.heroContent}>
-                <div className={styles.heroBadges}>
-                  <span className={styles.openBadge}>ABERTO AGORA</span>
-                  <span className={styles.ratingBadge}>
-                    4.8 <Star size={14} />
-                  </span>
+        {loading ? (
+          <div
+            style={
+              {
+                "--bg-primary": Colors.Background.primary,
+                "--bg-secondary": Colors.Background.secondary,
+                "--text-primary": Colors.Texts.primary,
+                "--text-secondary": Colors.Texts.secondary,
+                "--highlight": Colors.Highlight.primary,
+              } as React.CSSProperties
+            }
+          >
+            <MainSkeleton />
+          </div>
+        ) : (
+          <div className={styles.containerSec}>
+            <section className={styles.hero}>
+              <div className={styles.heroOverlay} />
+              <div className={styles.heroCenter}>
+                <div className={styles.heroContent}>
+                  <div className={styles.heroBadges}>
+                    <span className={styles.openBadge}>ABERTO AGORA</span>
+                    <span className={styles.ratingBadge}>
+                      4.8 <Star size={14} />
+                    </span>
+                  </div>
+                  <div>
+                    <h1 className={styles.heroTitle}>O Verdadeiro</h1>
+                    <h2 className={styles.heroAccent}>Sabor Artesanal</h2>
+                  </div>
+                  <p className={styles.heroDesc}>
+                    Ingredientes selecionados, carnes nobres e aquele molho
+                    especial que você só encontra aqui.
+                  </p>
                 </div>
-                <div>
-                  <h1 className={styles.heroTitle}>O Verdadeiro</h1>
-                  <h2 className={styles.heroAccent}>Sabor Artesanal</h2>
-                </div>
-                <p className={styles.heroDesc}>
-                  Ingredientes selecionados, carnes nobres e aquele molho especial
-                  que você só encontra aqui.
-                </p>
               </div>
+            </section>
+
+            <div className={styles.categoryRow}>
+              <button
+                type="button"
+                onClick={() => setCategory(null)}
+                className={`${styles.categoryPill} ${category === null ? styles.categoryActive : ""
+                  }`}
+              >
+                Todos
+              </button>
+
+              {categories.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setCategory(item.name)}
+                    className={`${styles.categoryPill} ${category === item.name ? styles.categoryActive : ""
+                      }`}
+                  >
+                    <Icon size={18} />
+                    <span>{item.name}</span>
+                  </button>
+                );
+              })}
             </div>
-          </section>
 
-          <div className={styles.categoryRow}>
-            <button
-              type="button"
-              onClick={() => setCategory(null)}
-              className={`${styles.categoryPill} ${category === null ? styles.categoryActive : ""
-                }`}
-            >
-              Todos
-            </button>
-
-            {categories.map((item) => {
-              const Icon = item.icon;
+            {Object.entries(
+              category === null
+                ? groupedProducts
+                : { [category]: groupedProducts[category] }
+            ).map(([cat, items]) => {
+              const Icon = categoryIcons[cat];
               return (
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={() => setCategory(item.name)}
-                  className={`${styles.categoryPill} ${category === item.name ? styles.categoryActive : ""
-                    }`}
-                >
-                  <Icon size={18} />
-                  <span>{item.name}</span>
-                </button>
+                <section key={cat} className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <div className={styles.sectionLeft}>
+                      <Icon size={20} />
+                      <h2 className={styles.sectionTitle}>{cat}</h2>
+                    </div>
+                    <span className={styles.sectionCount}>
+                      <span className={styles.sectionQuant}>{items.length}</span>
+                      <span> opções</span>
+                    </span>
+                  </div>
+
+                  <div
+                    className={cat === "Bebidas" ? styles.grid3 : styles.grid4}
+                  >
+                    {items.map((item) => (
+                      <FoodCard
+                        key={item.id}
+                        name={item.name}
+                        desc={item.desc}
+                        price={item.price}
+                        img={item.img}
+                        badge={item.badge}
+                        onDetails={() => goDetails(item.id)}
+                      />
+                    ))}
+                  </div>
+                </section>
               );
             })}
           </div>
-
-          {Object.entries(
-            category === null ? groupedProducts : { [category]: groupedProducts[category] }
-          ).map(([cat, items]) => {
-            const Icon = categoryIcons[cat];
-            return (
-              <section key={cat} className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <div className={styles.sectionLeft}>
-                    <Icon size={20} />
-                    <h2 className={styles.sectionTitle}>{cat}</h2>
-                  </div>
-                  <span className={styles.sectionCount}>
-                    <span className={styles.sectionQuant}>{items.length}</span>
-                    <span> opções</span>
-                  </span>
-                </div>
-
-                <div className={cat === "Bebidas" ? styles.grid3 : styles.grid4}>
-                  {items.map((item) => (
-                    <FoodCard
-                      key={item.id}
-                      name={item.name}
-                      desc={item.desc}
-                      price={item.price}
-                      img={item.img}
-                      badge={item.badge}
-                      onDetails={() => goDetails(item.id)}
-                    />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
+        )}
       </div>
     </div>
   );
