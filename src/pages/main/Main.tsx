@@ -175,9 +175,9 @@ export function Main() {
               <span className={styles.brandName}>Mais Burguer</span>
             </div>
 
-            <div className={styles.headerRight} onClick={() => navigation("/cart")}>
-              <ShoppingCart size={22} color={Colors.Highlight.primary} />
-            </div>
+            <button className={styles.headerCart} type="button" onClick={() => navigation("/cart")}>
+              <ShoppingCart size={20} />
+            </button>
           </div>
 
           <div className={styles.searchInputWrap}>
@@ -255,9 +255,8 @@ export function Main() {
               <button
                 type="button"
                 onClick={() => setCategory(null)}
-                className={`${styles.categoryPill} ${
-                  category === null ? styles.categoryActive : ""
-                }`}
+                className={`${styles.categoryPill} ${category === null ? styles.categoryActive : ""
+                  }`}
               >
                 Todos
               </button>
@@ -269,9 +268,8 @@ export function Main() {
                     key={item.name}
                     type="button"
                     onClick={() => setCategory(item.name)}
-                    className={`${styles.categoryPill} ${
-                      category === item.name ? styles.categoryActive : ""
-                    }`}
+                    className={`${styles.categoryPill} ${category === item.name ? styles.categoryActive : ""
+                      }`}
                   >
                     <Icon size={18} />
                     <span>{item.name}</span>

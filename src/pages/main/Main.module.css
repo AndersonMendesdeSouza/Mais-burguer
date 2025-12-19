@@ -159,6 +159,17 @@
   height: 60px;
 }
 
+.headerCart {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
 .heroCenter {
   display: flex;
   flex-direction: column;
