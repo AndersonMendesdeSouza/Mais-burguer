@@ -140,7 +140,7 @@ export function Main() {
       return acc;
     }, {} as Record<string, ProductResponseDto[]>);
   }, [filteredProducts]);
-  
+
   const goDetails = (item: ProductResponseDto) => {
     navigation(`/productDetails?id=${item.id}`, { state: { item } });
   };
@@ -171,7 +171,7 @@ export function Main() {
               <span className={styles.brandName}>Mais Burguer</span>
             </div>
 
-            <div className={styles.headerRight}>
+            <div className={styles.headerRight} onClick={() => navigation("/cart")}>
               <ShoppingCart size={22} color={Colors.Highlight.primary} />
             </div>
           </div>
