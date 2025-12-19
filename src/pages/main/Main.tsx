@@ -102,7 +102,7 @@ const categoryIcons: Record<string, any> = {
 
 const handleWatsappClick = () => {
   const phone = "5564999663524";
-  const text = "Boa noite! Tudo Bem?";
+  const text = "Olá! 👋 Vim pelo site e gostaria de fazer um pedido.";
   window.open(
     `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
     "_blank",
