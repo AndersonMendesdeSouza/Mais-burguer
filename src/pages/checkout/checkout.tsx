@@ -105,7 +105,10 @@ export default function Checkout() {
   const items = state.items || [];
   const deliveryFee = typeof state.deliveryFee === "number" ? state.deliveryFee : 0;
   const subtotal = typeof state.subtotal === "number" ? state.subtotal : 0;
-  const total = typeof state.total === "number" ? state.total : subtotal + (items.length ? deliveryFee : 0);
+  const total =
+    typeof state.total === "number"
+      ? state.total
+      : subtotal + (items.length ? deliveryFee : 0);
   const orderObs = state.orderObs || "";
 
   const [fullName, setFullName] = useState("");
@@ -122,7 +125,8 @@ export default function Checkout() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [useNewAddress, setUseNewAddress] = useState(false);
 
-  const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const brl = (v: number) =>
+    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   useEffect(() => {
     const list = parseLSAddresses().sort((a, b) => b.createdAt - a.createdAt);
@@ -130,16 +134,34 @@ export default function Checkout() {
     try {
       const sel = localStorage.getItem(LS_SELECTED_KEY);
       if (sel) setSelectedAddressId(sel);
-    } catch { }
+    } catch {}
   }, []);
 
-  const step1Done = fullName.trim().length > 0 && onlyDigits(phone).length >= 10;
+  const selectedAddress = useMemo(() => {
+    if (!selectedAddressId) return null;
+    return savedAddresses.find((a) => a.id === selectedAddressId) || null;
+  }, [savedAddresses, selectedAddressId]);
+
+  const usingSavedAddress = !useNewAddress && !!selectedAddress;
+
+  const fullNameValue = usingSavedAddress ? selectedAddress?.fullName || "" : fullName;
+  const phoneValue = usingSavedAddress ? selectedAddress?.phone || "" : phone;
+  const cepValue = usingSavedAddress ? selectedAddress?.cep || "" : cep;
+  const streetValue = usingSavedAddress ? selectedAddress?.street || "" : street;
+  const numberValue = usingSavedAddress ? selectedAddress?.number || "" : number;
+  const districtValue = usingSavedAddress ? selectedAddress?.district || "" : district;
+  const complementValue = usingSavedAddress ? selectedAddress?.complement || "" : complement;
+
+  const step1Done = fullNameValue.trim().length > 0 && onlyDigits(phoneValue).length >= 10;
+
   const step2Done =
-    onlyDigits(cep).length === 8 &&
-    street.trim().length > 0 &&
-    number.trim().length > 0 &&
-    district.trim().length > 0;
+    onlyDigits(cepValue).length === 8 &&
+    streetValue.trim().length > 0 &&
+    numberValue.trim().length > 0 &&
+    districtValue.trim().length > 0;
+
   const step3Done = payment !== "CASH" || cashChange.trim().length > 0;
+
   const canSend = items.length > 0 && step1Done && step2Done && step3Done;
 
   const waLink = useMemo(() => {
@@ -168,15 +190,15 @@ export default function Checkout() {
 
     lines.push("");
     lines.push("*Seus Dados*");
-    lines.push(`Nome: ${fullName || "-"}`);
-    lines.push(`WhatsApp: ${phone || "-"}`);
+    lines.push(`Nome: ${fullNameValue || "-"}`);
+    lines.push(`WhatsApp: ${phoneValue || "-"}`);
 
     lines.push("");
     lines.push("*Entrega*");
-    lines.push(`CEP: ${cep || "-"}`);
-    lines.push(`Rua: ${street || "-"}, Nº: ${number || "-"}`);
-    lines.push(`Bairro: ${district || "-"}`);
-    if (complement.trim()) lines.push(`Compl.: ${complement.trim()}`);
+    lines.push(`CEP: ${cepValue || "-"}`);
+    lines.push(`Rua: ${streetValue || "-"}, Nº: ${numberValue || "-"}`);
+    lines.push(`Bairro: ${districtValue || "-"}`);
+    if (String(complementValue || "").trim()) lines.push(`Compl.: ${String(complementValue).trim()}`);
 
     lines.push("");
     lines.push("*Pagamento*");
@@ -184,24 +206,43 @@ export default function Checkout() {
       payment === "PIX"
         ? "Pix"
         : payment === "CARD"
-          ? "Cartão (crédito/débito)"
-          : `Dinheiro${cashChange.trim() ? ` (troco para: ${cashChange.trim()})` : ""}`
+        ? "Cartão (crédito/débito)"
+        : `Dinheiro${cashChange.trim() ? ` (troco para: ${cashChange.trim()})` : ""}`
     );
 
     const text = lines.join("\n");
     return `https://wa.me/${phoneDest}?text=${encodeURIComponent(text)}`;
-  }, [items, subtotal, deliveryFee, total, orderObs, fullName, phone, cep, street, number, district, complement, payment, cashChange]);
+  }, [
+    items,
+    subtotal,
+    deliveryFee,
+    total,
+    orderObs,
+    fullNameValue,
+    phoneValue,
+    cepValue,
+    streetValue,
+    numberValue,
+    districtValue,
+    complementValue,
+    payment,
+    cashChange,
+  ]);
 
   function persistAddressAfterSend() {
+    const base = {
+      fullName: fullNameValue.trim(),
+      phone: phoneValue.trim(),
+      cep: cepValue.trim(),
+      street: streetValue.trim(),
+      number: numberValue.trim(),
+      district: districtValue.trim(),
+      complement: String(complementValue || "").trim(),
+    };
+
     const newAddr: SavedAddress = {
       id: uid(),
-      fullName: fullName.trim(),
-      phone: phone.trim(),
-      cep: cep.trim(),
-      street: street.trim(),
-      number: number.trim(),
-      district: district.trim(),
-      complement: complement.trim(),
+      ...base,
       createdAt: Date.now(),
     };
 
@@ -214,19 +255,37 @@ export default function Checkout() {
 
     const existing = savedAddresses.find(same);
     const next = existing
-      ? savedAddresses.map((a) => (a.id === existing.id ? { ...a, ...newAddr, id: existing.id, createdAt: Date.now() } : a))
+      ? savedAddresses.map((a) =>
+          a.id === existing.id
+            ? { ...a, ...newAddr, id: existing.id, createdAt: Date.now() }
+            : a
+        )
       : [newAddr, ...savedAddresses];
 
     saveLSAddresses(next);
     setSavedAddresses(next);
-    setSelectedAddressId(existing ? existing.id : newAddr.id);
-    localStorage.setItem(LS_SELECTED_KEY, existing ? existing.id : newAddr.id);
+
+    const chosenId = existing ? existing.id : newAddr.id;
+    setSelectedAddressId(chosenId);
+    localStorage.setItem(LS_SELECTED_KEY, chosenId);
+    setUseNewAddress(false);
   }
 
   function handleSelectAddress(id: string) {
+    const addr = savedAddresses.find((a) => a.id === id);
     setSelectedAddressId(id);
     localStorage.setItem(LS_SELECTED_KEY, id);
     setUseNewAddress(false);
+
+    if (addr) {
+      setFullName(addr.fullName || "");
+      setPhone(addr.phone || "");
+      setCep(addr.cep || "");
+      setStreet(addr.street || "");
+      setNumber(addr.number || "123");
+      setDistrict(addr.district || "");
+      setComplement(addr.complement || "");
+    }
   }
 
   function handleUseNewAddress() {
@@ -282,12 +341,11 @@ export default function Checkout() {
 
         <div className={styles.stepBarContainer}>
           <div className={styles.stepBar}>
-            <div className={`${styles.stepSeg} ${step1Done ? styles.stepSegOn : ""}`} />
-            <div className={`${styles.stepSeg} ${step2Done ? styles.stepSegOn : ""}`} />
             <div className={`${styles.stepSeg} ${step3Done ? styles.stepSegOn : ""}`} />
+            <div className={`${styles.stepSeg} ${step2Done ? styles.stepSegOn : ""}`} />
+            <div className={`${styles.stepSeg} ${step1Done ? styles.stepSegOn : ""}`} />
           </div>
         </div>
-
 
         <section className={styles.section}>
           <div className={styles.sectionTitle}>
@@ -313,14 +371,14 @@ export default function Checkout() {
               </div>
             ))}
           </div>
-
-
         </section>
+
         <section className={styles.section}>
           <div className={styles.sectionTitle}>
             <Home size={16} />
             <span>Endereços salvos</span>
           </div>
+
           {savedAddresses.length === 0 ? (
             <div className={styles.emptyAddressCard}>
               <div className={styles.emptyAddressTitle}>Nenhum endereço salvo ainda</div>
@@ -332,7 +390,7 @@ export default function Checkout() {
           ) : (
             <div className={styles.addressList}>
               {savedAddresses.map((a) => {
-                const active = a.id === selectedAddressId;
+                const active = a.id === selectedAddressId && !useNewAddress;
                 return (
                   <button
                     key={a.id}
@@ -364,12 +422,14 @@ export default function Checkout() {
                   </button>
                 );
               })}
-                <button type="button" className={styles.useNewBtn} onClick={handleUseNewAddress}>
+
+              <button type="button" className={styles.useNewBtn} onClick={handleUseNewAddress}>
                 Usar novo endereço
               </button>
             </div>
           )}
         </section>
+
         {useNewAddress ? (
           <>
             <section className={styles.section}>
@@ -386,6 +446,7 @@ export default function Checkout() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Como devemos te chamar?"
+                    autoComplete="name"
                   />
                 </label>
 
@@ -397,6 +458,7 @@ export default function Checkout() {
                     onChange={(e) => setPhone(maskPhoneBR(e.target.value))}
                     placeholder="(00) 00000-0000"
                     inputMode="tel"
+                    autoComplete="tel"
                   />
                 </label>
               </div>
@@ -417,6 +479,7 @@ export default function Checkout() {
                     onChange={(e) => setCep(maskCep(e.target.value))}
                     placeholder="00000-000"
                     inputMode="numeric"
+                    autoComplete="postal-code"
                   />
                 </label>
 
@@ -428,6 +491,7 @@ export default function Checkout() {
                       value={street}
                       onChange={(e) => setStreet(e.target.value)}
                       placeholder="Nome da rua"
+                      autoComplete="address-line1"
                     />
                   </label>
 
@@ -439,6 +503,7 @@ export default function Checkout() {
                       onChange={(e) => setNumber(onlyDigits(e.target.value).slice(0, 6))}
                       placeholder="123"
                       inputMode="numeric"
+                      autoComplete="off"
                     />
                   </label>
                 </div>
@@ -450,6 +515,7 @@ export default function Checkout() {
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
                     placeholder="Seu bairro"
+                    autoComplete="address-level3"
                   />
                 </label>
 
@@ -460,6 +526,7 @@ export default function Checkout() {
                     value={complement}
                     onChange={(e) => setComplement(e.target.value)}
                     placeholder="Apto, Bloco, Ponto de referência..."
+                    autoComplete="address-line2"
                   />
                 </label>
               </div>
@@ -535,6 +602,7 @@ export default function Checkout() {
                     onChange={(e) => setCashChange(maskMoneyBR(e.target.value))}
                     placeholder="Ex: 50,00"
                     inputMode="decimal"
+                    autoComplete="off"
                   />
                 </label>
               </div>

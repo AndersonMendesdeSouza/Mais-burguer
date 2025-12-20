@@ -218,8 +218,9 @@
   background: rgba(0, 0, 0, 0.18);
   color: var(--textPrimary);
   outline: none;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
+  -webkit-text-size-adjust: 100%;
 }
 
 .input::placeholder {
