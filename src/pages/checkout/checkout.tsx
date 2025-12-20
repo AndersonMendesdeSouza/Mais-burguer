@@ -133,11 +133,6 @@ export default function Checkout() {
     } catch { }
   }, []);
 
-  const selectedAddress = useMemo(() => {
-    if (!selectedAddressId) return null;
-    return savedAddresses.find((a) => a.id === selectedAddressId) || null;
-  }, [savedAddresses, selectedAddressId]);
-
   const step1Done = fullName.trim().length > 0 && onlyDigits(phone).length >= 10;
   const step2Done =
     onlyDigits(cep).length === 8 &&
