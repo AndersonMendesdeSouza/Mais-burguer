@@ -42,7 +42,7 @@ export default function Cart() {
       qty: 2,
       subtitle: "350ml",
       image:
-        "https://images.unsplash.com/photo-1622483767028-3f66f32f0f0b?auto=format&fit=crop&w=200&q=80",
+        "https://buongiorno.vtexassets.com/arquivos/ids/195727-800-auto?v=637897942606530000&width=800&height=auto&aspect=true",
     },
   ]);
 

@@ -134,7 +134,7 @@ export default function Checkout() {
     try {
       const sel = localStorage.getItem(LS_SELECTED_KEY);
       if (sel) setSelectedAddressId(sel);
-    } catch {}
+    } catch { }
   }, []);
 
   const selectedAddress = useMemo(() => {
@@ -206,8 +206,8 @@ export default function Checkout() {
       payment === "PIX"
         ? "Pix"
         : payment === "CARD"
-        ? "Cartão (crédito/débito)"
-        : `Dinheiro${cashChange.trim() ? ` (troco para: ${cashChange.trim()})` : ""}`
+          ? "Cartão (crédito/débito)"
+          : `Dinheiro${cashChange.trim() ? ` (troco para: ${cashChange.trim()})` : ""}`
     );
 
     const text = lines.join("\n");
@@ -256,10 +256,10 @@ export default function Checkout() {
     const existing = savedAddresses.find(same);
     const next = existing
       ? savedAddresses.map((a) =>
-          a.id === existing.id
-            ? { ...a, ...newAddr, id: existing.id, createdAt: Date.now() }
-            : a
-        )
+        a.id === existing.id
+          ? { ...a, ...newAddr, id: existing.id, createdAt: Date.now() }
+          : a
+      )
       : [newAddr, ...savedAddresses];
 
     saveLSAddresses(next);
@@ -384,7 +384,7 @@ export default function Checkout() {
               <div className={styles.emptyAddressTitle}>Nenhum endereço salvo ainda</div>
               <div className={styles.emptyAddressDesc}>Finalize um pedido para salvar seu endereço aqui.</div>
               <button type="button" className={styles.useNewBtn} onClick={handleUseNewAddress}>
-                Usar novo endereço
+                {savedAddresses.length === 0 ? "Adiçionar endereço" : " Usar novo endereço"}
               </button>
             </div>
           ) : (
@@ -624,9 +624,12 @@ export default function Checkout() {
           type="button"
           disabled={!canSend}
           onClick={() => {
-            if (!canSend) return;
-            persistAddressAfterSend();
-            window.open(waLink, "_blank", "noopener,noreferrer");
+            if (!canSend) {
+              alert("Adicione um endereço")
+            } else {
+              persistAddressAfterSend();
+              window.open(waLink, "_blank", "noopener,noreferrer");
+            }
           }}
         >
           <span className={styles.sendLeft}>
