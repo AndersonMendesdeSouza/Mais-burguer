@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom"
 import Cart from "./pages/cart/Cart";
-import Checkout from "./pages/checkout/Checkout";
 import FoodDetails from "./pages/food/FoodDetails";
 import Main from "./pages/main/Main";
+import Checkout from "./pages/checkout/checkout";
 
 function App() {
   return (
