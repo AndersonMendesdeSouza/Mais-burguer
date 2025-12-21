@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom"
-import Cart from "./pages/Cart/Cart"
-import Checkout from "./pages/Checkout/Checkout"
-import FoodDetails from "./pages/Food/FoodDetails"
-import Main from "./pages/Main/Main"
+import Cart from "./pages/cart/Cart"
+import Checkout from "./pages/checkout/Checkout"
+import FoodDetails from "./pages/food/FoodDetails"
+import Main from "./pages/main/Main"
 
 function App() {
   return (
