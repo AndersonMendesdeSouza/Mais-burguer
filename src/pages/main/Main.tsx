@@ -104,7 +104,7 @@ const handleWatsappClick = () => {
   );
 };
 
-export function Main() {
+export default function Main() {
   const [category, setCategory] = useState<string | null>(null);
   const navigation = useNavigate();
   const [loading, setLoading] = useState(true);
