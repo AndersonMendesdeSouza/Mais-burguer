@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import styles from "./checkout.module.css";
+import styles from "./Checkout.module.css";
 import Colors from "../../themes/Colors";
 import {
   ArrowLeft,
