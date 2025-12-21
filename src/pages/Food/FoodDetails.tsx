@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./FoodDetails.module.css";
 import { Share2, Minus, Plus, Check, ArrowLeft, ShoppingCart } from "lucide-react";
-import { addCart, FoodCard } from "../../components/food/FoodCard";
+import { addCart, FoodCard } from "../../components/food/foodCard";
 import type { FoodResponseDto } from "../../dtos/Food-Response.Dto";
 import { toast, ToastContainer } from "react-toastify";
 import Colors from "../../themes/Colors";

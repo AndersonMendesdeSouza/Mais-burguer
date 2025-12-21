@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom"
 import Cart from "./pages/cart/Cart";
 import Main from "./pages/main/Main";
 import Checkout from "./pages/checkout/checkout";
-import FoodDetails from "./pages/food/FoodDetails";
+import FoodDetails from "./pages/food/foodDetails";
 
 function App() {
   return (
