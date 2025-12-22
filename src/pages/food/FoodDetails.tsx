@@ -44,7 +44,9 @@ export default function FoodDetails() {
 
     if (state.item) {
       setProducts(state.item);
-      setComplements(Array.isArray(state.productsMock) ? state.productsMock : []);
+      setComplements(
+        Array.isArray(state.productsMock) ? state.productsMock : []
+      );
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       });
@@ -52,9 +54,24 @@ export default function FoodDetails() {
   }, [location.state]);
 
   const addons: Addon[] = [
-    { id: "bacon", name: "Bacon Extra", desc: "Fatia extra crocante", price: 4 },
-    { id: "cheddar", name: "Queijo Cheddar", desc: "Extra cremosidade", price: 3 },
-    { id: "maionese", name: "Maionese Verde", desc: "Maionese da casa", price: 2 },
+    {
+      id: "bacon",
+      name: "Bacon Extra",
+      desc: "Fatia extra crocante",
+      price: 4,
+    },
+    {
+      id: "cheddar",
+      name: "Queijo Cheddar",
+      desc: "Extra cremosidade",
+      price: 3,
+    },
+    {
+      id: "maionese",
+      name: "Maionese Verde",
+      desc: "Maionese da casa",
+      price: 2,
+    },
     { id: "ovo", name: "Ovo Frito", desc: "Gema mole", price: 2.6 },
   ];
 
@@ -183,46 +200,50 @@ export default function FoodDetails() {
             <p className={styles.desc}>{products.desc}</p>
           </div>
 
-          <div className={styles.section}>
-            <div className={styles.sectionHead}>
-              <h2 className={styles.sectionTitle}>Adicionais</h2>
-              <span className={styles.sectionChip}>Opcional</span>
-            </div>
+          {products.category === "Sanduíches" && (
+            <div className={styles.section}>
+              <div className={styles.sectionHead}>
+                <h2 className={styles.sectionTitle}>Adicionais</h2>
+                <span className={styles.sectionChip}>Opcional</span>
+              </div>
 
-            <div className={styles.addons}>
-              {addons.map((a) => {
-                const active = !!selectedAddons[a.id];
+              <div className={styles.addons}>
+                {addons.map((a) => {
+                  const active = !!selectedAddons[a.id];
 
-                return (
-                  <button
-                    key={a.id}
-                    type="button"
-                    className={`${styles.addonRow} ${
-                      active ? styles.addonActive : ""
-                    }`}
-                    onClick={() => toggleAddon(a.id)}
-                  >
-                    <span className={styles.toggle}>
-                      <span
-                        className={`${styles.toggleKnob} ${
-                          active ? styles.toggleOn : ""
-                        }`}
-                      >
-                        {active ? <Check size={14} /> : null}
+                  return (
+                    <button
+                      key={a.id}
+                      type="button"
+                      className={`${styles.addonRow} ${
+                        active ? styles.addonActive : ""
+                      }`}
+                      onClick={() => toggleAddon(a.id)}
+                    >
+                      <span className={styles.toggle}>
+                        <span
+                          className={`${styles.toggleKnob} ${
+                            active ? styles.toggleOn : ""
+                          }`}
+                        >
+                          {active ? <Check size={14} /> : null}
+                        </span>
                       </span>
-                    </span>
 
-                    <span className={styles.addonInfo}>
-                      <span className={styles.addonName}>{a.name}</span>
-                      <span className={styles.addonDesc}>{a.desc}</span>
-                    </span>
+                      <span className={styles.addonInfo}>
+                        <span className={styles.addonName}>{a.name}</span>
+                        <span className={styles.addonDesc}>{a.desc}</span>
+                      </span>
 
-                    <span className={styles.addonPrice}>+ {BRL(a.price)}</span>
-                  </button>
-                );
-              })}
+                      <span className={styles.addonPrice}>
+                        + {BRL(a.price)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>Alguma observação?</h2>
