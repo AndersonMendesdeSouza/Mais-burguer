@@ -21,12 +21,18 @@ type Addon = {
   price: number;
 };
 
+type DrinkOption = {
+  id: string;
+  name: string;
+};
+
 const BRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function FoodDetails() {
   const navigation = useNavigate();
   const location = useLocation();
+
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState("");
   const [cartActived, setCartActivedCart] = useState(false);
@@ -34,7 +40,17 @@ export default function FoodDetails() {
   const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>(
     {}
   );
+  const [selectedDrinkOption, setSelectedDrinkOption] = useState<string | null>(
+    null
+  );
   const [complements, setComplements] = useState<FoodResponseDto[]>([]);
+
+  const resetForNewProduct = () => {
+    setQty(1);
+    setNote("");
+    setSelectedAddons({});
+    setSelectedDrinkOption(null);
+  };
 
   useEffect(() => {
     const state = (location.state || {}) as {
@@ -47,6 +63,7 @@ export default function FoodDetails() {
       setComplements(
         Array.isArray(state.productsMock) ? state.productsMock : []
       );
+      resetForNewProduct();
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       });
@@ -54,12 +71,7 @@ export default function FoodDetails() {
   }, [location.state]);
 
   const addons: Addon[] = [
-    {
-      id: "bacon",
-      name: "Bacon Extra",
-      desc: "Fatia extra crocante",
-      price: 4,
-    },
+    { id: "bacon", name: "Bacon Extra", desc: "Fatia extra crocante", price: 4 },
     {
       id: "cheddar",
       name: "Queijo Cheddar",
@@ -75,17 +87,23 @@ export default function FoodDetails() {
     { id: "ovo", name: "Ovo Frito", desc: "Gema mole", price: 2.6 },
   ];
 
+  const drinkOptions: DrinkOption[] = [
+    { id: "gelado", name: "Gelado" },
+    { id: "natural", name: "Natural" },
+  ];
+
   const goDetails = (item: FoodResponseDto) => {
     navigation(`/foodDetails?id=${item.id}`, {
-      state: {
-        item,
-        productsMock: complements,
-      },
+      state: { item, productsMock: complements },
     });
   };
 
   const toggleAddon = (id: string) => {
     setSelectedAddons((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleDrinkOption = (id: string) => {
+    setSelectedDrinkOption((prev) => (prev === id ? null : id));
   };
 
   const selectedAddonList = useMemo(() => {
@@ -109,6 +127,11 @@ export default function FoodDetails() {
     const basePrice = products.price ?? 0;
     const unitPrice = basePrice + addonsTotal;
 
+    const subtitleParts = [
+      ...selectedAddonList.map((a) => `+ ${a.name}`),
+      selectedDrinkOption ? selectedDrinkOption : null,
+    ].filter(Boolean);
+
     return {
       ...products,
       id: products.id,
@@ -118,19 +141,43 @@ export default function FoodDetails() {
       addons: selectedAddonList,
       unitPrice,
       totalPrice: unitPrice * qty,
-      subtitle: selectedAddonList.length
-        ? selectedAddonList.map((a) => `+ ${a.name}`).join(", ")
-        : undefined,
+      subtitle: subtitleParts.length ? subtitleParts.join(", ") : undefined,
     };
-  }, [products, qty, note, selectedAddonList, addonsTotal]);
+  }, [products, qty, note, selectedAddonList, addonsTotal, selectedDrinkOption]);
+
+  const checkoutItem = useMemo(() => {
+    if (!cartItem) return null;
+    return {
+      id: Number((cartItem as any).id),
+      name: String((cartItem as any).name || ""),
+      price: Number((cartItem as any).price || 0),
+      qty: Number((cartItem as any).qty || 1),
+      note: (cartItem as any).note,
+      subtitle: (cartItem as any).subtitle,
+      image: String((cartItem as any).img || (cartItem as any).image || ""),
+    };
+  }, [cartItem]);
+
+  const checkoutState = useMemo(() => {
+    if (!checkoutItem) return null;
+    const items = [checkoutItem];
+    const subtotal = items.reduce((acc, it) => acc + it.price * it.qty, 0);
+    const deliveryFee = 0;
+    const total = subtotal + (items.length ? deliveryFee : 0);
+    return {
+      items,
+      orderObs: "",
+      deliveryFee,
+      subtotal,
+      total,
+    };
+  }, [checkoutItem]);
 
   if (!products) return null;
 
   function activedCart() {
     setCartActivedCart(true);
-    setTimeout(() => {
-      setCartActivedCart(false);
-    }, 7000);
+    setTimeout(() => setCartActivedCart(false), 7000);
   }
 
   return (
@@ -171,17 +218,12 @@ export default function FoodDetails() {
           <button
             type="button"
             className={styles.backBtn}
-            aria-label="Voltar"
             onClick={() => navigation(-1)}
           >
             <ArrowLeft size={18} />
           </button>
 
-          <button
-            type="button"
-            className={styles.shareBtn}
-            aria-label="Compartilhar"
-          >
+          <button type="button" className={styles.shareBtn}>
             <Share2 size={18} />
           </button>
         </div>
@@ -192,9 +234,9 @@ export default function FoodDetails() {
 
             <div className={styles.priceRow}>
               <span className={styles.price}>{BRL(products.price)}</span>
-              {products.badge ? (
+              {products.badge && (
                 <span className={styles.badge}>{products.badge}</span>
-              ) : null}
+              )}
             </div>
 
             <p className={styles.desc}>{products.desc}</p>
@@ -210,7 +252,6 @@ export default function FoodDetails() {
               <div className={styles.addons}>
                 {addons.map((a) => {
                   const active = !!selectedAddons[a.id];
-
                   return (
                     <button
                       key={a.id}
@@ -226,7 +267,7 @@ export default function FoodDetails() {
                             active ? styles.toggleOn : ""
                           }`}
                         >
-                          {active ? <Check size={14} /> : null}
+                          {active && <Check size={14} />}
                         </span>
                       </span>
 
@@ -245,15 +286,42 @@ export default function FoodDetails() {
             </div>
           )}
 
-          {products.category === "Sanduíches" && (
+          {products.category !== "Sanduíches" && (
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>Alguma observação?</h2>
-              <textarea
-                className={styles.note}
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Ex: Tirar cebola, maionese à parte..."
-              />
+              <div className={styles.sectionHead}>
+                <h2 className={styles.sectionTitle}>Como você prefere?</h2>
+                <span className={styles.sectionChip}>Opcional</span>
+              </div>
+
+              <div className={styles.addons}>
+                {drinkOptions.map((o) => {
+                  const active = selectedDrinkOption === o.id;
+                  return (
+                    <button
+                      key={o.id}
+                      type="button"
+                      className={`${styles.addonRow} ${
+                        active ? styles.addonActive : ""
+                      }`}
+                      onClick={() => toggleDrinkOption(o.id)}
+                    >
+                      <span className={styles.toggle}>
+                        <span
+                          className={`${styles.toggleKnob} ${
+                            active ? styles.toggleOn : ""
+                          }`}
+                        >
+                          {active && <Check size={14} />}
+                        </span>
+                      </span>
+
+                      <span className={styles.addonInfo}>
+                        <span className={styles.addonName}>{o.name}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -266,7 +334,6 @@ export default function FoodDetails() {
               className={styles.stepBtn}
               onClick={() => setQty((v) => Math.max(1, v - 1))}
               type="button"
-              aria-label="Diminuir quantidade"
             >
               <Minus size={16} />
             </button>
@@ -277,7 +344,6 @@ export default function FoodDetails() {
               className={styles.stepBtn}
               onClick={() => setQty((v) => v + 1)}
               type="button"
-              aria-label="Aumentar quantidade"
             >
               <Plus size={16} />
             </button>
@@ -287,16 +353,14 @@ export default function FoodDetails() {
             <button
               className={styles.addBtn}
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 if (!cartItem) return;
-
                 addCart(cartItem);
-
                 toast.success("Produto adicionado ao carrinho", {
                   autoClose: 2000,
                 });
                 activedCart();
+                resetForNewProduct();
               }}
             >
               <span>Adicionar</span>
@@ -306,12 +370,11 @@ export default function FoodDetails() {
             <button
               className={styles.finilyBtn}
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!cartItem) return;
-
-                addCart(cartItem);
-                navigation("/cart");
+              onClick={() => {
+                if (!checkoutState) return;
+                resetForNewProduct();
+                addCart(checkoutItem)
+                navigation("/checkout", { state: checkoutState });
               }}
             >
               <span>Pedir</span>

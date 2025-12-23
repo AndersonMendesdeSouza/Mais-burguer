@@ -1,7 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "./Cart.module.css";
 import Colors from "../../themes/Colors";
-import { ArrowLeft, Minus, Plus, Trash2, StickyNote, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Minus,
+  Plus,
+  Trash2,
+  StickyNote,
+  ArrowRight,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type CartItem = {
@@ -17,7 +24,9 @@ type CartItem = {
 function makeMergeKey(p: any) {
   const id = Number(p?.id);
   if (Number.isFinite(id) && id > 0) return `id:${id}`;
-  const name = String(p?.name ?? "").trim().toLowerCase();
+  const name = String(p?.name ?? "")
+    .trim()
+    .toLowerCase();
   return `name:${name || "unknown"}`;
 }
 
@@ -65,8 +74,10 @@ export default function Cart() {
           mergedMap[key].qty += safeQty;
 
           if (!mergedMap[key].image && image) mergedMap[key].image = image;
-          if (!mergedMap[key].subtitle && p.subtitle) mergedMap[key].subtitle = String(p.subtitle);
-          if (!mergedMap[key].note && p.note) mergedMap[key].note = String(p.note);
+          if (!mergedMap[key].subtitle && p.subtitle)
+            mergedMap[key].subtitle = String(p.subtitle);
+          if (!mergedMap[key].note && p.note)
+            mergedMap[key].note = String(p.note);
         }
       }
 
@@ -94,21 +105,29 @@ export default function Cart() {
   const getKeyFromItem = (it: CartItem) => {
     const id = Number(it.id);
     if (Number.isFinite(id) && id > 0) return `id:${id}`;
-    return `name:${String(it.name ?? "").trim().toLowerCase()}`;
+    return `name:${String(it.name ?? "")
+      .trim()
+      .toLowerCase()}`;
   };
 
   const dec = (target: CartItem) => {
     const key = getKeyFromItem(target);
     persist(
       items.map((it) =>
-        getKeyFromItem(it) === key ? { ...it, qty: Math.max(1, it.qty - 1) } : it
+        getKeyFromItem(it) === key
+          ? { ...it, qty: Math.max(1, it.qty - 1) }
+          : it
       )
     );
   };
 
   const inc = (target: CartItem) => {
     const key = getKeyFromItem(target);
-    persist(items.map((it) => (getKeyFromItem(it) === key ? { ...it, qty: it.qty + 1 } : it)));
+    persist(
+      items.map((it) =>
+        getKeyFromItem(it) === key ? { ...it, qty: it.qty + 1 } : it
+      )
+    );
   };
 
   const remove = (target: CartItem) => {
@@ -134,7 +153,6 @@ export default function Cart() {
         }
       >
         <div className={styles.content}>
-          
           <header className={styles.header}>
             <button
               className={styles.iconBtn}
@@ -146,9 +164,11 @@ export default function Cart() {
 
             <h1 className={styles.title}>Seu Pedido</h1>
 
-            <div className={styles.linkBtn} onClick={() => navigation("/")}>
-              Continuar comprando
-            </div>
+            {items.length > 0 && (
+              <div className={styles.linkBtn} onClick={() => navigation("/")}>
+                Continuar comprando
+              </div>
+            )}
           </header>
 
           <div className={styles.list}>
@@ -156,7 +176,11 @@ export default function Cart() {
               items.map((it) => (
                 <div key={getKeyFromItem(it)} className={styles.card}>
                   <div className={styles.thumbWrap}>
-                    <img className={styles.thumb} src={it.image} alt={it.name} />
+                    <img
+                      className={styles.thumb}
+                      src={it.image}
+                      alt={it.name}
+                    />
                   </div>
 
                   <div className={styles.cardInfo}>
@@ -168,7 +192,10 @@ export default function Cart() {
 
                       <div className={styles.qtyArea}>
                         <div className={styles.qtyBox}>
-                          <button className={styles.qtyBtn} onClick={() => dec(it)}>
+                          <button
+                            className={styles.qtyBtn}
+                            onClick={() => dec(it)}
+                          >
                             <Minus size={16} />
                           </button>
 
@@ -182,39 +209,51 @@ export default function Cart() {
                           </button>
                         </div>
 
-                        <button className={styles.trashBtn} onClick={() => remove(it)}>
+                        <button
+                          className={styles.trashBtn}
+                          onClick={() => remove(it)}
+                        >
                           <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
 
-                    {it.subtitle && <div className={styles.subLine}>{it.subtitle}</div>}
-                    {it.note && <div className={styles.noteLine}>{it.note}</div>}
+                    {it.subtitle && (
+                      <div className={styles.subLine}>{it.subtitle}</div>
+                    )}
+                    {it.note && (
+                      <div className={styles.noteLine}>{it.note}</div>
+                    )}
                   </div>
                 </div>
               ))
             ) : (
               <div className={styles.emptyState}>
                 <h3>Você ainda não possui pedidos</h3>
-                <button className={styles.emptyButton} onClick={() => navigation("/")}>
+                <button
+                  className={styles.emptyButton}
+                  onClick={() => navigation("/")}
+                >
                   Fazer pedido
                 </button>
               </div>
             )}
           </div>
 
-          <section className={styles.obsSection}>
-            <div className={styles.obsHeader}>
-              <StickyNote size={18} />
-              <span>Observações do pedido</span>
-            </div>
+          {items.length > 0 && (
+            <section className={styles.obsSection}>
+              <div className={styles.obsHeader}>
+                <StickyNote size={18} />
+                <span>Observações do pedido</span>
+              </div>
 
-            <textarea
-              className={styles.textarea}
-              value={orderObs}
-              onChange={(e) => setOrderObs(e.target.value)}
-            />
-          </section>
+              <textarea
+                className={styles.textarea}
+                value={orderObs}
+                onChange={(e) => setOrderObs(e.target.value)}
+              />
+            </section>
+          )}
 
           <section className={styles.summary}>
             <div className={styles.sumRow}>

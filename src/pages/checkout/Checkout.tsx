@@ -62,7 +62,8 @@ function maskPhoneBR(input: string) {
   if (d.length === 0) return "";
   if (d.length <= 2) return `(${d}`;
   if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
-  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  if (d.length <= 10)
+    return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
@@ -101,9 +102,9 @@ export default function Checkout() {
   const nav = useNavigate();
   const location = useLocation();
   const state = (location.state || {}) as Partial<CheckoutNavState>;
-
   const items = state.items || [];
-  const deliveryFee = typeof state.deliveryFee === "number" ? state.deliveryFee : 0;
+  const deliveryFee =
+    typeof state.deliveryFee === "number" ? state.deliveryFee : 0;
   const subtotal = typeof state.subtotal === "number" ? state.subtotal : 0;
   const total =
     typeof state.total === "number"
@@ -122,7 +123,9 @@ export default function Checkout() {
   const [needChange, setNeedChange] = useState<boolean | null>(null);
 
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
   const [useNewAddress, setUseNewAddress] = useState(false);
 
   const brl = (v: number) =>
@@ -134,7 +137,7 @@ export default function Checkout() {
     try {
       const sel = localStorage.getItem(LS_SELECTED_KEY);
       if (sel) setSelectedAddressId(sel);
-    } catch { }
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -148,18 +151,25 @@ export default function Checkout() {
     if (!selectedAddressId) return null;
     return savedAddresses.find((a) => a.id === selectedAddressId) || null;
   }, [savedAddresses, selectedAddressId]);
-
   const usingSavedAddress = !useNewAddress && !!selectedAddress;
-
-  const fullNameValue = usingSavedAddress ? selectedAddress?.fullName || "" : fullName;
+  const fullNameValue = usingSavedAddress
+    ? selectedAddress?.fullName || ""
+    : fullName;
   const phoneValue = usingSavedAddress ? selectedAddress?.phone || "" : phone;
   const cepValue = usingSavedAddress ? selectedAddress?.cep || "" : cep;
   const streetValue = usingSavedAddress ? selectedAddress?.street || "" : street;
-  const numberValue = usingSavedAddress ? selectedAddress?.number || "" : number;
-  const districtValue = usingSavedAddress ? selectedAddress?.district || "" : district;
-  const complementValue = usingSavedAddress ? selectedAddress?.complement || "" : complement;
+  const numberValue = usingSavedAddress
+    ? selectedAddress?.number || ""
+    : number;
+  const districtValue = usingSavedAddress
+    ? selectedAddress?.district || ""
+    : district;
+  const complementValue = usingSavedAddress
+    ? selectedAddress?.complement || ""
+    : complement;
 
-  const step1Done = fullNameValue.trim().length > 0 && onlyDigits(phoneValue).length >= 10;
+  const step1Done =
+    fullNameValue.trim().length > 0 && onlyDigits(phoneValue).length >= 10;
 
   const step2Done =
     onlyDigits(cepValue).length === 8 &&
@@ -169,7 +179,8 @@ export default function Checkout() {
 
   const step3Done =
     payment !== "CASH" ||
-    (needChange === false || (needChange === true && cashChange.trim().length > 0));
+    needChange === false ||
+    (needChange === true && cashChange.trim().length > 0);
 
   const canSend = items.length > 0 && step1Done && step2Done && step3Done;
 
@@ -177,7 +188,7 @@ export default function Checkout() {
     const phoneDest = "5564999663524";
     const lines: string[] = [];
 
-    lines.push(`🧾 *Pedido - ${fullName}`);
+    lines.push(`🧾 *Pedido - ${fullNameValue || "-"}*`);
     lines.push("");
     lines.push("*Resumo*");
     items.forEach((it) => {
@@ -216,10 +227,10 @@ export default function Checkout() {
       payment === "PIX"
         ? "Pix"
         : payment === "CARD"
-          ? "Cartão (crédito/débito)"
-          : needChange === true
-            ? `Dinheiro (troco para: ${cashChange.trim() || "-"})`
-            : "Dinheiro (sem troco)"
+        ? "Cartão (crédito/débito)"
+        : needChange === true
+        ? `Dinheiro (troco para: ${cashChange.trim() || "-"})`
+        : "Dinheiro (sem troco)"
     );
 
     const text = lines.join("\n");
@@ -263,17 +274,18 @@ export default function Checkout() {
       onlyDigits(a.cep) === onlyDigits(newAddr.cep) &&
       a.street.trim().toLowerCase() === newAddr.street.trim().toLowerCase() &&
       a.number.trim().toLowerCase() === newAddr.number.trim().toLowerCase() &&
-      a.district.trim().toLowerCase() === newAddr.district.trim().toLowerCase() &&
+      a.district.trim().toLowerCase() ===
+        newAddr.district.trim().toLowerCase() &&
       (a.complement || "").trim().toLowerCase() ===
-      (newAddr.complement || "").trim().toLowerCase();
+        (newAddr.complement || "").trim().toLowerCase();
 
     const existing = savedAddresses.find(same);
     const next = existing
       ? savedAddresses.map((a) =>
-        a.id === existing.id
-          ? { ...a, ...newAddr, id: existing.id, createdAt: Date.now() }
-          : a
-      )
+          a.id === existing.id
+            ? { ...a, ...newAddr, id: existing.id, createdAt: Date.now() }
+            : a
+        )
       : [newAddr, ...savedAddresses];
 
     saveLSAddresses(next);
@@ -340,7 +352,11 @@ export default function Checkout() {
     >
       <div className={styles.content}>
         <header className={styles.header}>
-          <button className={styles.iconBtn} aria-label="Voltar" onClick={() => nav(-1)}>
+          <button
+            className={styles.iconBtn}
+            aria-label="Voltar"
+            onClick={() => nav(-1)}
+          >
             <ArrowLeft size={20} />
           </button>
 
@@ -348,16 +364,32 @@ export default function Checkout() {
             <div className={styles.headerTop}>Finalizar Pedido</div>
           </div>
 
-          <button className={styles.headerCart} type="button" onClick={() => nav("/cart")}>
+          <button
+            className={styles.headerCart}
+            type="button"
+            onClick={() => nav("/cart")}
+          >
             <ShoppingCart size={18} />
           </button>
         </header>
 
         <div className={styles.stepBarContainer}>
           <div className={styles.stepBar}>
-            <div className={`${styles.stepSeg} ${step3Done ? styles.stepSegOn : ""}`} />
-            <div className={`${styles.stepSeg} ${step2Done ? styles.stepSegOn : ""}`} />
-            <div className={`${styles.stepSeg} ${step1Done ? styles.stepSegOn : ""}`} />
+            <div
+              className={`${styles.stepSeg} ${
+                step3Done ? styles.stepSegOn : ""
+              }`}
+            />
+            <div
+              className={`${styles.stepSeg} ${
+                step2Done ? styles.stepSegOn : ""
+              }`}
+            />
+            <div
+              className={`${styles.stepSeg} ${
+                step1Done ? styles.stepSegOn : ""
+              }`}
+            />
           </div>
         </div>
 
@@ -381,7 +413,11 @@ export default function Checkout() {
             {items.map((it) => (
               <div key={it.id} className={styles.summaryItem}>
                 <div className={styles.summaryThumbWrap}>
-                  <img className={styles.summaryThumb} src={it.image} alt={it.name} />
+                  <img
+                    className={styles.summaryThumb}
+                    src={it.image}
+                    alt={it.name}
+                  />
                 </div>
 
                 <div className={styles.summaryInfo}>
@@ -405,11 +441,17 @@ export default function Checkout() {
 
           {savedAddresses.length === 0 ? (
             <div className={styles.emptyAddressCard}>
-              <div className={styles.emptyAddressTitle}>Nenhum endereço salvo ainda</div>
+              <div className={styles.emptyAddressTitle}>
+                Nenhum endereço salvo ainda
+              </div>
               <div className={styles.emptyAddressDesc}>
                 Finalize um pedido para salvar seu endereço aqui.
               </div>
-              <button type="button" className={styles.useNewBtn} onClick={handleUseNewAddress}>
+              <button
+                type="button"
+                className={styles.useNewBtn}
+                onClick={handleUseNewAddress}
+              >
                 Adicionar endereço
               </button>
             </div>
@@ -421,7 +463,9 @@ export default function Checkout() {
                   <button
                     key={a.id}
                     type="button"
-                    className={`${styles.addressCard} ${active ? styles.addressCardActive : ""}`}
+                    className={`${styles.addressCard} ${
+                      active ? styles.addressCardActive : ""
+                    }`}
                     onClick={() => handleSelectAddress(a.id)}
                   >
                     <div className={styles.addressTopRow}>
@@ -451,7 +495,11 @@ export default function Checkout() {
                 );
               })}
 
-              <button type="button" className={styles.useNewBtn} onClick={handleUseNewAddress}>
+              <button
+                type="button"
+                className={styles.useNewBtn}
+                onClick={handleUseNewAddress}
+              >
                 Usar novo endereço
               </button>
             </div>
@@ -528,7 +576,9 @@ export default function Checkout() {
                     <input
                       className={styles.input}
                       value={number}
-                      onChange={(e) => setNumber(onlyDigits(e.target.value).slice(0, 6))}
+                      onChange={(e) =>
+                        setNumber(onlyDigits(e.target.value).slice(0, 6))
+                      }
                       placeholder="123"
                       inputMode="numeric"
                       autoComplete="off"
@@ -571,7 +621,9 @@ export default function Checkout() {
           <div className={styles.payList}>
             <button
               type="button"
-              className={`${styles.payItem} ${payment === "PIX" ? styles.payItemActive : ""}`}
+              className={`${styles.payItem} ${
+                payment === "PIX" ? styles.payItemActive : ""
+              }`}
               onClick={() => setPayment("PIX")}
             >
               <div className={styles.payLeft}>
@@ -583,12 +635,18 @@ export default function Checkout() {
                   <div className={styles.payDesc}>Pagamento instantâneo</div>
                 </div>
               </div>
-              <div className={`${styles.radio} ${payment === "PIX" ? styles.radioOn : ""}`} />
+              <div
+                className={`${styles.radio} ${
+                  payment === "PIX" ? styles.radioOn : ""
+                }`}
+              />
             </button>
 
             <button
               type="button"
-              className={`${styles.payItem} ${payment === "CARD" ? styles.payItemActive : ""}`}
+              className={`${styles.payItem} ${
+                payment === "CARD" ? styles.payItemActive : ""
+              }`}
               onClick={() => setPayment("CARD")}
             >
               <div className={styles.payLeft}>
@@ -600,12 +658,18 @@ export default function Checkout() {
                   <div className={styles.payDesc}>Crédito ou Débito na entrega</div>
                 </div>
               </div>
-              <div className={`${styles.radio} ${payment === "CARD" ? styles.radioOn : ""}`} />
+              <div
+                className={`${styles.radio} ${
+                  payment === "CARD" ? styles.radioOn : ""
+                }`}
+              />
             </button>
 
             <button
               type="button"
-              className={`${styles.payItem} ${payment === "CASH" ? styles.payItemActive : ""}`}
+              className={`${styles.payItem} ${
+                payment === "CASH" ? styles.payItemActive : ""
+              }`}
               onClick={() => setPayment("CASH")}
             >
               <div className={styles.payLeft}>
@@ -617,7 +681,11 @@ export default function Checkout() {
                   <div className={styles.payDesc}>Precisa de troco?</div>
                 </div>
               </div>
-              <div className={`${styles.radio} ${payment === "CASH" ? styles.radioOn : ""}`} />
+              <div
+                className={`${styles.radio} ${
+                  payment === "CASH" ? styles.radioOn : ""
+                }`}
+              />
             </button>
 
             {payment === "CASH" ? (
@@ -625,8 +693,9 @@ export default function Checkout() {
                 <div className={styles.payList}>
                   <button
                     type="button"
-                    className={`${styles.payItem} ${needChange === true ? styles.payItemActive : ""
-                      }`}
+                    className={`${styles.payItem} ${
+                      needChange === true ? styles.payItemActive : ""
+                    }`}
                     onClick={() => setNeedChange(true)}
                   >
                     <div className={styles.payLeft}>
@@ -639,15 +708,17 @@ export default function Checkout() {
                       </div>
                     </div>
                     <div
-                      className={`${styles.radio} ${needChange === true ? styles.radioOn : ""
-                        }`}
+                      className={`${styles.radio} ${
+                        needChange === true ? styles.radioOn : ""
+                      }`}
                     />
                   </button>
 
                   <button
                     type="button"
-                    className={`${styles.payItem} ${needChange === false ? styles.payItemActive : ""
-                      }`}
+                    className={`${styles.payItem} ${
+                      needChange === false ? styles.payItemActive : ""
+                    }`}
                     onClick={() => {
                       setNeedChange(false);
                       setCashChange("");
@@ -663,8 +734,9 @@ export default function Checkout() {
                       </div>
                     </div>
                     <div
-                      className={`${styles.radio} ${needChange === false ? styles.radioOn : ""
-                        }`}
+                      className={`${styles.radio} ${
+                        needChange === false ? styles.radioOn : ""
+                      }`}
                     />
                   </button>
                 </div>
