@@ -105,6 +105,34 @@ const handleWatsappClick = () => {
   );
 };
 
+type StoreHours = { open: number; close: number };
+
+function isOpenNowByHour(h: number, hours: StoreHours) {
+  const open = Number(hours.open);
+  const close = Number(hours.close);
+  if (open === close) return true;
+  if (open < close) return h >= open && h < close;
+  return h >= open || h < close;
+}
+
+function hoursUntilOpen(hours: StoreHours) {
+  const now = new Date();
+  const h = now.getHours();
+
+  if (isOpenNowByHour(h, hours)) return 0;
+
+  const openHour = Number(hours.open);
+  const open = new Date(now);
+  open.setHours(openHour, 0, 0, 0);
+
+  if (open.getTime() <= now.getTime()) {
+    open.setDate(open.getDate() + 1);
+  }
+
+  const diff = open.getTime() - now.getTime();
+  return Math.max(1, Math.ceil(diff / (1000 * 60 * 60)));
+}
+
 export default function Main() {
   const [category, setCategory] = useState<string | null>(null);
   const navigation = useNavigate();
@@ -115,38 +143,37 @@ export default function Main() {
 
   const [openNow, setOpenNow] = useState(() => getStoreStatusNow().openNow);
 
+  const storeHours = useMemo<StoreHours>(() => {
+    const open = Number((STORE_HOURS as any)?.open);
+    const close = Number((STORE_HOURS as any)?.close);
+    if (Number.isFinite(open) && Number.isFinite(close)) return { open, close };
+    return { open: 18, close: 2 };
+  }, []);
+
   function activedCart() {
     setCartActivedCart(true);
     setTimeout(() => {
       setCartActivedCart(false);
     }, 7000);
   }
-  type StoreHours = { open: number; close: number };
-  const storeHours = useMemo<StoreHours>(() => {
-    const open = Number((STORE_HOURS as any)?.open);
-    const close = Number((STORE_HOURS as any)?.close);
 
-    if (Number.isFinite(open) && Number.isFinite(close)) return { open, close };
-    return { open: 18, close: 2 };
-  }, []);
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1000);
 
     const KEY = "mb_store_toast_shown_v1";
-    const left = hoursUntilOpen(storeHours);
     try {
-      const already = sessionStorage.getItem(KEY);
+      const already = localStorage.getItem(KEY);
       if (!already) {
-        const status = getStoreStatusNow().openNow; // pega o status do momento
-        if (status)
+        if (openNow) {
           toast.success("Estabelecimento aberto", { autoClose: 2500 });
-        else
+        } else {
+          const left = hoursUntilOpen(storeHours);
           toast.error(
             `Fechado, abrimos em ${left} ${left === 1 ? "hora" : "horas"}`,
             { autoClose: 2500 }
           );
-
-        sessionStorage.setItem(KEY, "1");
+        }
+        localStorage.setItem(KEY, "1");
       }
     } catch {}
 
@@ -404,7 +431,4 @@ export default function Main() {
       </div>
     </div>
   );
-}
-function hoursUntilOpen(storeHours: any) {
-  throw new Error("Function not implemented.");
 }
