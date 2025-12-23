@@ -126,15 +126,16 @@ export default function Main() {
     const t = setTimeout(() => setLoading(false), 1000);
 
     const KEY = "mb_store_toast_shown_v1";
+
     try {
-      const already = localStorage.getItem(KEY);
+      const already = sessionStorage.getItem(KEY);
       if (!already) {
-        if (openNow) {
+        const status = getStoreStatusNow().openNow; // pega o status do momento
+        if (status)
           toast.success("Estabelecimento aberto", { autoClose: 2500 });
-        } else {
-          toast.error("Estabelecimento fechado", { autoClose: 2500 });
-        }
-        localStorage.setItem(KEY, "1");
+        else toast.error("Estabelecimento fechado", { autoClose: 2500 });
+
+        sessionStorage.setItem(KEY, "1");
       }
     } catch {}
 
