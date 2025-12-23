@@ -377,7 +377,7 @@
   justify-content: space-around;
   align-items: center;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .stepBtn {
@@ -468,8 +468,6 @@
 }
 
 @media (max-width: 520px) {
-  .page {
-  }
 
   .compItem {
     min-width: 210px;
