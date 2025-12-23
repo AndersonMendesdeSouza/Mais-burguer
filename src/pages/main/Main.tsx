@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import whatsapp from "../../assets/whatsapp.png";
+import whatsappred from "../../assets/whatsappred.png";
+
 import { MainSkeleton } from "../../components/skeletons/main/MainSkeleton";
 import type { FoodResponseDto } from "../../dtos/Food-Response.Dto";
 import { toast, ToastContainer } from "react-toastify";
@@ -95,16 +97,6 @@ const categoryIcons: Record<string, any> = {
   Sobremesas: IceCream,
 };
 
-const handleWatsappClick = () => {
-  const phone = "5564999663524";
-  const text = "Olá! 👋 Vim pelo site e gostaria de fazer um pedido.";
-  window.open(
-    `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
-    "_blank",
-    "noopener,noreferrer"
-  );
-};
-
 type StoreHours = { open: number; close: number };
 
 function isOpenNowByHour(h: number, hours: StoreHours) {
@@ -150,13 +142,31 @@ export default function Main() {
     return { open: 18, close: 2 };
   }, []);
 
+  const handleWatsappClick = () => {
+    if (openNow) {
+      const phone = "5564999663524";
+      const text = "Olá! 👋 Vim pelo site e gostaria de fazer um pedido.";
+      window.open(
+        `https://wa.me/${phone}?text=${encodeURIComponent(text)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } else {
+      const left = hoursUntilOpen(storeHours);
+      toast.error(
+        `Fechado, abrimos em ${left} ${left === 1 ? "hora" : "horas"}`,
+        { autoClose: 2500 }
+      );
+    }
+  };
+
   function activedCart() {
     setCartActivedCart(true);
     setTimeout(() => {
       setCartActivedCart(false);
     }, 7000);
   }
-
+  const left = hoursUntilOpen(storeHours);
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1000);
 
@@ -301,7 +311,14 @@ export default function Main() {
         </header>
 
         <div className={styles.whatsappFloat} onClick={handleWatsappClick}>
-          <img src={whatsapp} alt="WhatsApp" />
+          {openNow ? (
+            <img src={openNow ? whatsapp : whatsappred} alt="WhatsApp" />
+          ) : (
+            <div style={{display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center"}}>
+              <img src={openNow ? whatsapp : whatsappred} alt="WhatsApp" />
+              <span style={{ fontWeight: "500",  }}> Fechado</span>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -342,6 +359,18 @@ export default function Main() {
 
                     <span className={styles.ratingBadge}>
                       4.8 <Star size={14} />
+                    </span>
+                    <span
+                      className={styles.openBadgeHors}
+                      style={
+                        openNow
+                          ? undefined
+                          : {
+                              color: "rgba(255, 255, 255, 0.78)",
+                            }
+                      }
+                    >
+                      Abrimos em {left} {left === 1 ? "hora" : "horas"}
                     </span>
                   </div>
                   <div>
