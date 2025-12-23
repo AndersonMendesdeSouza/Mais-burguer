@@ -1,3 +1,4 @@
+// Main.tsx (completo, só ajustei o que é de horário para usar o arquivo)
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import Colors from "../../themes/Colors";
 import styles from "./Main.module.css";
@@ -17,6 +18,7 @@ import whatsapp from "../../assets/whatsapp.png";
 import { MainSkeleton } from "../../components/skeletons/main/MainSkeleton";
 import type { FoodResponseDto } from "../../dtos/Food-Response.Dto";
 import { ToastContainer } from "react-toastify";
+import { getStoreStatusNow } from "../../utils/storeHours";
 
 const productsMock: FoodResponseDto[] = [
   {
@@ -112,6 +114,8 @@ export default function Main() {
   const searchRef = useRef<HTMLInputElement | null>(null);
   const [cartActived, setCartActivedCart] = useState(false);
 
+  const [openNow, setOpenNow] = useState(() => getStoreStatusNow().openNow);
+
   function activedCart() {
     setCartActivedCart(true);
     setTimeout(() => {
@@ -126,6 +130,13 @@ export default function Main() {
 
   useEffect(() => {
     searchRef.current?.blur();
+  }, []);
+
+  useEffect(() => {
+    const update = () => setOpenNow(getStoreStatusNow().openNow);
+    update();
+    const id = setInterval(update, 30 * 1000);
+    return () => clearInterval(id);
   }, []);
 
   const categories = useMemo(() => {
@@ -159,7 +170,7 @@ export default function Main() {
     navigation(`/foodDetails?id=${item.id}`, {
       state: {
         item,
-        productsMock, // ou productsMock
+        productsMock,
       },
     });
   };
@@ -262,7 +273,21 @@ export default function Main() {
               <div className={styles.heroCenter}>
                 <div className={styles.heroContent}>
                   <div className={styles.heroBadges}>
-                    <span className={styles.openBadge}>ABERTO AGORA</span>
+                    <span
+                      className={styles.openBadge}
+                      style={
+                        openNow
+                          ? undefined
+                          : {
+                              background: "rgba(255, 0, 0, 0.22)",
+                              border: "1px solid rgba(255, 0, 0, 0.85)",
+                              color: "rgba(255, 140, 140, 0.95)",
+                            }
+                      }
+                    >
+                      {openNow ? "ABERTO AGORA" : "FECHADO"}
+                    </span>
+
                     <span className={styles.ratingBadge}>
                       4.8 <Star size={14} />
                     </span>
@@ -322,9 +347,7 @@ export default function Main() {
                       <h2 className={styles.sectionTitle}>{cat}</h2>
                     </div>
                     <span className={styles.sectionCount}>
-                      <span className={styles.sectionQuant}>
-                        {items.length}
-                      </span>
+                      <span className={styles.sectionQuant}>{items.length}</span>
                       <span> opções</span>
                     </span>
                   </div>

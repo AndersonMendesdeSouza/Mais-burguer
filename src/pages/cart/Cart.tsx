@@ -10,6 +10,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { STORE_HOURS } from "../../utils/storeHours";
 
 type CartItem = {
   id: number;
@@ -24,10 +26,36 @@ type CartItem = {
 function makeMergeKey(p: any) {
   const id = Number(p?.id);
   if (Number.isFinite(id) && id > 0) return `id:${id}`;
-  const name = String(p?.name ?? "")
-    .trim()
-    .toLowerCase();
+  const name = String(p?.name ?? "").trim().toLowerCase();
   return `name:${name || "unknown"}`;
+}
+
+type StoreHours = { open: number; close: number };
+
+function isOpenNowByHour(h: number, hours: StoreHours) {
+  const open = Number(hours.open);
+  const close = Number(hours.close);
+  if (open === close) return true;
+  if (open < close) return h >= open && h < close;
+  return h >= open || h < close;
+}
+
+function hoursUntilOpen(hours: StoreHours) {
+  const now = new Date();
+  const h = now.getHours();
+
+  if (isOpenNowByHour(h, hours)) return 0;
+
+  const openHour = Number(hours.open);
+  const open = new Date(now);
+  open.setHours(openHour, 0, 0, 0);
+
+  if (open.getTime() <= now.getTime()) {
+    open.setDate(open.getDate() + 1);
+  }
+
+  const diff = open.getTime() - now.getTime();
+  return Math.max(1, Math.ceil(diff / (1000 * 60 * 60)));
 }
 
 export default function Cart() {
@@ -35,6 +63,13 @@ export default function Cart() {
   const navigation = useNavigate();
   const [orderObs, setOrderObs] = useState("");
   const deliveryFee = 5;
+
+  const storeHours = useMemo<StoreHours>(() => {
+    const open = Number((STORE_HOURS as any)?.open);
+    const close = Number((STORE_HOURS as any)?.close);
+    if (Number.isFinite(open) && Number.isFinite(close)) return { open, close };
+    return { open: 18, close: 2 };
+  }, []);
 
   useEffect(() => {
     const raw = localStorage.getItem("food");
@@ -105,9 +140,7 @@ export default function Cart() {
   const getKeyFromItem = (it: CartItem) => {
     const id = Number(it.id);
     if (Number.isFinite(id) && id > 0) return `id:${id}`;
-    return `name:${String(it.name ?? "")
-      .trim()
-      .toLowerCase()}`;
+    return `name:${String(it.name ?? "").trim().toLowerCase()}`;
   };
 
   const dec = (target: CartItem) => {
@@ -138,8 +171,13 @@ export default function Cart() {
   const brl = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  const openNow = useMemo(() => {
+    return isOpenNowByHour(new Date().getHours(), storeHours);
+  }, [storeHours]);
+
   return (
     <div className={styles.wrap}>
+      <ToastContainer position="top-center" />
       <div
         className={styles.screen}
         style={
@@ -176,11 +214,7 @@ export default function Cart() {
               items.map((it) => (
                 <div key={getKeyFromItem(it)} className={styles.card}>
                   <div className={styles.thumbWrap}>
-                    <img
-                      className={styles.thumb}
-                      src={it.image}
-                      alt={it.name}
-                    />
+                    <img className={styles.thumb} src={it.image} alt={it.name} />
                   </div>
 
                   <div className={styles.cardInfo}>
@@ -192,10 +226,7 @@ export default function Cart() {
 
                       <div className={styles.qtyArea}>
                         <div className={styles.qtyBox}>
-                          <button
-                            className={styles.qtyBtn}
-                            onClick={() => dec(it)}
-                          >
+                          <button className={styles.qtyBtn} onClick={() => dec(it)}>
                             <Minus size={16} />
                           </button>
 
@@ -209,31 +240,21 @@ export default function Cart() {
                           </button>
                         </div>
 
-                        <button
-                          className={styles.trashBtn}
-                          onClick={() => remove(it)}
-                        >
+                        <button className={styles.trashBtn} onClick={() => remove(it)}>
                           <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
 
-                    {it.subtitle && (
-                      <div className={styles.subLine}>{it.subtitle}</div>
-                    )}
-                    {it.note && (
-                      <div className={styles.noteLine}>{it.note}</div>
-                    )}
+                    {it.subtitle && <div className={styles.subLine}>{it.subtitle}</div>}
+                    {it.note && <div className={styles.noteLine}>{it.note}</div>}
                   </div>
                 </div>
               ))
             ) : (
               <div className={styles.emptyState}>
                 <h3>Você ainda não possui pedidos</h3>
-                <button
-                  className={styles.emptyButton}
-                  onClick={() => navigation("/")}
-                >
+                <button className={styles.emptyButton} onClick={() => navigation("/")}>
                   Fazer pedido
                 </button>
               </div>
@@ -279,11 +300,20 @@ export default function Cart() {
           <button
             className={styles.checkoutBtn}
             disabled={items.length === 0}
-            onClick={() =>
+            onClick={() => {
+              if (!openNow) {
+                const left = hoursUntilOpen(storeHours);
+                toast.error(
+                  `Fechado, abrimos em ${left} ${left === 1 ? "hora" : "horas"}`,
+                  { autoClose: 2500 }
+                );
+                return;
+              }
+
               navigation("/checkout", {
                 state: { items, orderObs, deliveryFee, subtotal, total },
-              })
-            }
+              });
+            }}
           >
             <span>Finalizar Pedido</span>
             <span>
