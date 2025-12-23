@@ -367,18 +367,20 @@ export default function Main() {
                     <span className={styles.ratingBadge}>
                       4.8 <Star size={14} />
                     </span>
-                 { openNow && <span
-                      className={styles.openBadgeHors}
-                      style={
-                        openNow
-                          ? undefined
-                          : {
-                              color: "rgba(255, 255, 255, 0.78)",
-                            }
-                      }
-                    >
-                      Abrimos em {left} {left === 1 ? "hora" : "horas"}
-                    </span>}
+                    {openNow && (
+                      <span
+                        className={styles.openBadgeHors}
+                        style={
+                          openNow
+                            ? undefined
+                            : {
+                                color: "rgba(255, 255, 255, 0.78)",
+                              }
+                        }
+                      >
+                        Abrimos em {left} {left === 1 ? "hora" : "horas"}
+                      </span>
+                    )}
                   </div>
                   <div>
                     <h1 className={styles.heroTitle}>O Verdadeiro</h1>
