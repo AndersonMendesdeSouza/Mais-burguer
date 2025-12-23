@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import whatsapp from "../../assets/whatsapp.png";
 import { MainSkeleton } from "../../components/skeletons/main/MainSkeleton";
 import type { FoodResponseDto } from "../../dtos/Food-Response.Dto";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { getStoreStatusNow } from "../../utils/storeHours";
 
 const productsMock: FoodResponseDto[] = [
@@ -125,6 +125,11 @@ export default function Main() {
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 1000);
+    if (openNow) {
+      toast.success("Estabelecimento aberto", { autoClose: 2500 });
+    } else {
+      toast.error("Estabelecimento fechado", { autoClose: 2500 });
+    }
     return () => clearTimeout(t);
   }, []);
 
@@ -189,7 +194,7 @@ export default function Main() {
       }
     >
       <div className={styles.page}>
-        <ToastContainer position="top-center" />
+        <ToastContainer position="top-right" />
         {cartActived && (
           <div className={styles.cartFloat}>
             <button
@@ -347,7 +352,9 @@ export default function Main() {
                       <h2 className={styles.sectionTitle}>{cat}</h2>
                     </div>
                     <span className={styles.sectionCount}>
-                      <span className={styles.sectionQuant}>{items.length}</span>
+                      <span className={styles.sectionQuant}>
+                        {items.length}
+                      </span>
                       <span> opções</span>
                     </span>
                   </div>
