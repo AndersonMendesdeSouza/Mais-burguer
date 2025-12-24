@@ -218,7 +218,7 @@ export default function FoodDetails() {
           <button
             type="button"
             className={styles.backBtn}
-            onClick={() => navigation(-1)}
+            onClick={() => navigation(-2)}
           >
             <ArrowLeft size={18} />
           </button>
