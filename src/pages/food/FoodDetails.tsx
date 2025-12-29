@@ -44,10 +44,12 @@ export default function FoodDetails() {
     null
   );
   const [complements, setComplements] = useState<FoodResponseDto[]>([]);
-  const [, setProductStack] = useState<FoodResponseDto[]>([]);
+  const [productStack, setProductStack] = useState<FoodResponseDto[]>([]);
 
+  const stackRef = useRef<FoodResponseDto[]>([]);
   const mountedRef = useRef(false);
   const prevScrollRestoration = useRef<string | null>(null);
+  const ignoreNextPopRef = useRef(false);
 
   const resetForNewProduct = () => {
     setQty(1);
@@ -55,6 +57,18 @@ export default function FoodDetails() {
     setSelectedAddons({});
     setSelectedDrinkOption(null);
   };
+
+  const pushTrapHistoryState = () => {
+    ignoreNextPopRef.current = true;
+    window.history.pushState({ trap: true }, "", window.location.href);
+    setTimeout(() => {
+      ignoreNextPopRef.current = false;
+    }, 0);
+  };
+
+  useEffect(() => {
+    stackRef.current = productStack;
+  }, [productStack]);
 
   useEffect(() => {
     if (mountedRef.current) return;
@@ -78,6 +92,8 @@ export default function FoodDetails() {
       );
       resetForNewProduct();
       window.scrollTo({ top: 0, behavior: "auto" });
+
+      pushTrapHistoryState();
     }
 
     return () => {
@@ -90,9 +106,30 @@ export default function FoodDetails() {
   }, []);
 
   useEffect(() => {
-    if (!products) return;
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, [products?.id]);
+    const onPopState = () => {
+      if (ignoreNextPopRef.current) return;
+
+      const stack = stackRef.current;
+
+      if (stack.length > 1) {
+        const next = stack.slice(0, -1);
+        const prevProduct = next[next.length - 1] || null;
+
+        setProductStack(next);
+        setProducts(prevProduct);
+        resetForNewProduct();
+        window.scrollTo({ top: 0, behavior: "auto" });
+
+        pushTrapHistoryState();
+        return;
+      }
+
+      // quando só tem 1 produto, deixa o back do celular sair pra Main
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   const addons: Addon[] = [
     { id: "bacon", name: "Bacon Extra", desc: "Fatia extra crocante", price: 4 },
@@ -122,26 +159,31 @@ export default function FoodDetails() {
       if (last?.id === item.id) return prev;
       return [...prev, item];
     });
+
     setProducts(item);
     resetForNewProduct();
     window.scrollTo({ top: 0, behavior: "auto" });
+
+    pushTrapHistoryState();
   };
 
   const handleBack = useCallback(() => {
-    setProductStack((prev) => {
-      if (prev.length <= 1) {
-        window.scrollTo({ top: 0, behavior: "auto" });
-        navigation(-1);
-        return prev;
-      }
+    const stack = stackRef.current;
 
-      const next = prev.slice(0, -1);
+    if (stack.length > 1) {
+      const next = stack.slice(0, -1);
       const prevProduct = next[next.length - 1] || null;
+
+      setProductStack(next);
       setProducts(prevProduct);
       resetForNewProduct();
       window.scrollTo({ top: 0, behavior: "auto" });
-      return next;
-    });
+
+      pushTrapHistoryState();
+      return;
+    }
+
+    navigation(-1);
   }, [navigation]);
 
   const toggleAddon = (id: string) => {
