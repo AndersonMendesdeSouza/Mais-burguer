@@ -44,7 +44,7 @@ export default function FoodDetails() {
     null
   );
   const [complements, setComplements] = useState<FoodResponseDto[]>([]);
-  const [productStack, setProductStack] = useState<FoodResponseDto[]>([]);
+  const [, setProductStack] = useState<FoodResponseDto[]>([]);
 
   const mountedRef = useRef(false);
   const prevScrollRestoration = useRef<string | null>(null);
