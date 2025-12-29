@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./FoodDetails.module.css";
 import {
@@ -44,6 +44,10 @@ export default function FoodDetails() {
     null
   );
   const [complements, setComplements] = useState<FoodResponseDto[]>([]);
+  const [productStack, setProductStack] = useState<FoodResponseDto[]>([]);
+
+  const mountedRef = useRef(false);
+  const prevScrollRestoration = useRef<string | null>(null);
 
   const resetForNewProduct = () => {
     setQty(1);
@@ -53,6 +57,14 @@ export default function FoodDetails() {
   };
 
   useEffect(() => {
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+
+    prevScrollRestoration.current = window.history.scrollRestoration;
+    try {
+      window.history.scrollRestoration = "manual";
+    } catch {}
+
     const state = (location.state || {}) as {
       item?: FoodResponseDto;
       productsMock?: FoodResponseDto[];
@@ -60,15 +72,27 @@ export default function FoodDetails() {
 
     if (state.item) {
       setProducts(state.item);
+      setProductStack([state.item]);
       setComplements(
         Array.isArray(state.productsMock) ? state.productsMock : []
       );
       resetForNewProduct();
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      });
+      window.scrollTo({ top: 0, behavior: "auto" });
     }
-  }, [location.state]);
+
+    return () => {
+      try {
+        if (prevScrollRestoration.current) {
+          window.history.scrollRestoration = prevScrollRestoration.current as any;
+        }
+      } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!products) return;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [products?.id]);
 
   const addons: Addon[] = [
     { id: "bacon", name: "Bacon Extra", desc: "Fatia extra crocante", price: 4 },
@@ -93,10 +117,32 @@ export default function FoodDetails() {
   ];
 
   const goDetails = (item: FoodResponseDto) => {
-    navigation(`/foodDetails?id=${item.id}`, {
-      state: { item, productsMock: complements },
+    setProductStack((prev) => {
+      const last = prev[prev.length - 1];
+      if (last?.id === item.id) return prev;
+      return [...prev, item];
     });
+    setProducts(item);
+    resetForNewProduct();
+    window.scrollTo({ top: 0, behavior: "auto" });
   };
+
+  const handleBack = useCallback(() => {
+    setProductStack((prev) => {
+      if (prev.length <= 1) {
+        window.scrollTo({ top: 0, behavior: "auto" });
+        navigation(-1);
+        return prev;
+      }
+
+      const next = prev.slice(0, -1);
+      const prevProduct = next[next.length - 1] || null;
+      setProducts(prevProduct);
+      resetForNewProduct();
+      window.scrollTo({ top: 0, behavior: "auto" });
+      return next;
+    });
+  }, [navigation]);
 
   const toggleAddon = (id: string) => {
     setSelectedAddons((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -218,7 +264,7 @@ export default function FoodDetails() {
           <button
             type="button"
             className={styles.backBtn}
-            onClick={() => navigation(-2)}
+            onClick={handleBack}
           >
             <ArrowLeft size={18} />
           </button>
@@ -373,7 +419,7 @@ export default function FoodDetails() {
               onClick={() => {
                 if (!checkoutState) return;
                 resetForNewProduct();
-                addCart(checkoutItem)
+                addCart(checkoutItem);
                 navigation("/checkout", { state: checkoutState });
               }}
             >
